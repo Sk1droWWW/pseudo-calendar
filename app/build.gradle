@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'org.jetbrains.kotlin.plugin.serialization'
 }
 
 apply plugin: 'com.google.devtools.ksp'
@@ -10,12 +11,12 @@ apply plugin: 'kotlinx-serialization'
 
 android {
     namespace 'int20h.troipsa.pseudocalendar'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "int20h.troipsa.pseudocalendar"
         minSdk 26
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -61,10 +62,12 @@ android {
 dependencies {
 
     // ktx
-    implementation "androidx.core:core-ktx:$kotlin_version"
+    implementation "androidx.core:core-ktx:$ktx_version"
 
     // Android
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$androidx_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$androidx_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$androidx_version"
 
     // Compose
     def composeBom = platform('androidx.compose:compose-bom:2022.12.00')
@@ -76,8 +79,7 @@ dependencies {
     implementation 'androidx.compose.ui:ui-tooling-preview'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     implementation 'androidx.activity:activity-compose:1.5.1'
-    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
+
 
 
     // Room

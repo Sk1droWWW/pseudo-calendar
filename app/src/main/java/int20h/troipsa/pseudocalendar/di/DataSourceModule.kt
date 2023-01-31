@@ -7,6 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import int20h.troipsa.pseudocalendar.BuildConfig
 import int20h.troipsa.pseudocalendar.data.local.MainDatabase
 import int20h.troipsa.pseudocalendar.data.network.ApiService
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -32,7 +33,7 @@ class DataSourceModule {
     fun provideApiService(): ApiService {
         val okHttpClient = createOkHttpClient()
 
-        return createRetrofitService(okHttpClient, "BuildConfig.BASE_URL")
+        return createRetrofitService(okHttpClient, BuildConfig.BASE_URL)
     }
 
     @OptIn(ExperimentalSerializationApi::class)

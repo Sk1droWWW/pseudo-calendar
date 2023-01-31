@@ -6,6 +6,7 @@ import int20h.troipsa.pseudocalendar.data.local.mapper.UserEntityMapper
 import int20h.troipsa.pseudocalendar.data.network.ApiService
 import int20h.troipsa.pseudocalendar.data.network.models.UserApiModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,7 +17,17 @@ class DataRepository @Inject constructor(
 ) {
 
     fun getCurrentUserFlow(): Flow<UserEntity?> {
-        return mainDatabase.userDao().getCurrentUser()
+        // TODO: remove stub data
+//        return mainDatabase.userDao().getCurrentUser()
+        return flow {
+            emit(
+                UserEntity(
+                    id = 0,
+                    name = "Stub User",
+                    phoneNumber = "32423 32423 234"
+                )
+            )
+        }
     }
 
     suspend fun syncUser() {
