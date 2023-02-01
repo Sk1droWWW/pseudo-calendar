@@ -17,6 +17,9 @@ buildscript {
 
         coil_version = '2.1.0'
 
+//        voyager_version = '1.0.0-rc03'
+        compose_nav_version = '2.5.3'
+
         ksp_version = '1.7.20-1.0.7'
     }
 

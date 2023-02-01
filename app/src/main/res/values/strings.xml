@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">pseudo-calendar</string>
+
+    <!--NavBar-->
+    <string name="nav_bar_calendar_title">Calendar</string>
+    <string name="nav_bar_friends_list">Contacts</string>
+    <!--NavBar-->
 </resources>
