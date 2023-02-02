@@ -1,5 +1,6 @@
 package int20h.troipsa.pseudocalendar.ui.navigation
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -14,9 +15,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.animation.AnimatedNavHost
 import int20h.troipsa.pseudocalendar.ui.calendar.Calendar
 import int20h.troipsa.pseudocalendar.ui.contacts.Contacts
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun PseudoCalendarNavHost(
     modifier: Modifier = Modifier,
@@ -64,9 +67,9 @@ fun PseudoCalendarNavHost(
         }
     ) { innerPadding ->
         NavHost(
-            navController,
+            navController = navController,
             startDestination = Screen.Calendar.route,
-            Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Calendar.route) { Calendar(navController) }
             composable(Screen.Contacts.route) { Contacts(navController) }
