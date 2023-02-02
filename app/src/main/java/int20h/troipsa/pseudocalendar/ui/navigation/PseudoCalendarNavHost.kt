@@ -1,11 +1,7 @@
 package int20h.troipsa.pseudocalendar.ui.navigation
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -18,8 +14,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import int20h.troipsa.pseudocalendar.ui.main.MainViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
+import int20h.troipsa.pseudocalendar.ui.calendar.Calendar
+import int20h.troipsa.pseudocalendar.ui.contacts.Contacts
 
 @Composable
 fun PseudoCalendarNavHost(
@@ -75,21 +71,5 @@ fun PseudoCalendarNavHost(
             composable(Screen.Calendar.route) { Calendar(navController) }
             composable(Screen.Contacts.route) { Contacts(navController) }
         }
-    }
-}
-
-
-@Composable
-fun Calendar(navController: NavHostController) {
-    val vm = hiltViewModel<MainViewModel>()
-    Column() {
-        Text(text = stringResource(Screen.Calendar.resourceId))
-    }
-}
-
-@Composable
-fun Contacts(navController: NavHostController) {
-    Column() {
-        Text(text = stringResource(Screen.Contacts.resourceId))
     }
 }
