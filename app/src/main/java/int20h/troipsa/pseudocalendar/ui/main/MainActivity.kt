@@ -17,10 +17,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             PseudocalendarTheme {
-
-//                CompositionLocalProvider(LocalDependencyContainer provides dependencyContainer) {
-//
-//                }
                 PseudoCalendarNavHost()
             }
         }
