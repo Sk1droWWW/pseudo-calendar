@@ -8,6 +8,8 @@
 
     <!--DaySchedule-->
     <string name="day_schedule_title">Day Schedule</string>
+    <string name="day_schedule_events_title">Your Events</string>
+    <string name="day_schedule_event_type">type:</string>
     <!--DaySchedule-->
 
 </resources>

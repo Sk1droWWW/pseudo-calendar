@@ -62,11 +62,12 @@ fun TopBar(
 fun defaultTopBarProvider(
     title: String = "",
     closeIcon: Painter? = null,
+    closeAction: (() -> Unit)? = null,
     actionButton: @Composable (() -> Unit)? = null,
 ) = @Composable {
     TopBar(
         header = title,
-        homeButton = { ButtonBack(icon = closeIcon) },
+        homeButton = { ButtonBack(icon = closeIcon, onClick = closeAction) },
         actionButton = actionButton
     )
 }
@@ -86,13 +87,15 @@ fun homeTopBarProvider(
 fun ButtonBack(
     modifier: Modifier = Modifier,
     icon: Painter? = null,
-    tint: Color = LocalContentColor.current
+    tint: Color = LocalContentColor.current,
+    onClick: (() -> Unit)? = null
 ) {
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
     Icon(
         modifier = modifier
             .clip(CircleShape)
-            .clickable(onClick = { backDispatcher?.onBackPressed() })
+            .clickable(onClick = { onClick?.invoke() ?: backDispatcher?.onBackPressed() })
             .padding(16.dp),
         painter = icon ?: painterResource(id = R.drawable.ic_back_arrow),
         contentDescription = null,

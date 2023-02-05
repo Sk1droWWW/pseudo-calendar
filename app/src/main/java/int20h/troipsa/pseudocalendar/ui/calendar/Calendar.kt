@@ -11,13 +11,11 @@ import androidx.compose.material.LocalContentColor
 import androidx.compose.material.Text
 import androidx.compose.material.darkColors
 import androidx.compose.material.ripple.LocalRippleTheme
-import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,23 +28,16 @@ import com.kizitonwose.calendar.compose.ContentHeightMode
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.*
-import int20h.troipsa.pseudocalendar.R
 import int20h.troipsa.pseudocalendar.domain.models.Event
 import int20h.troipsa.pseudocalendar.ui.basic.PseudoScaffold
+import int20h.troipsa.pseudocalendar.ui.theme.*
+import int20h.troipsa.pseudocalendar.utils.compose.AdditionalRippleTheme
 import int20h.troipsa.pseudocalendar.utils.compose.StatusBarColorUpdateEffect
 import int20h.troipsa.pseudocalendar.utils.displayText
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
-
-
-private val pageBackgroundColor: Color @Composable get() = colorResource(R.color.example_5_page_bg_color)
-private val itemBackgroundColor: Color @Composable get() = colorResource(R.color.example_5_item_view_bg_color)
-private val toolbarColor: Color @Composable get() = colorResource(R.color.example_5_toolbar_color)
-private val selectedItemColor: Color @Composable get() = colorResource(R.color.example_5_text_grey)
-private val inActiveTextColor: Color @Composable get() = colorResource(R.color.example_5_text_grey_light)
-
 
 @Composable
 fun Calendar(
@@ -129,7 +120,7 @@ fun CalendarScreen(
                 state = state,
                 contentHeightMode = ContentHeightMode.Fill,
                 dayContent = { day ->
-                    CompositionLocalProvider(LocalRippleTheme provides CalendarRippleTheme) {
+                    CompositionLocalProvider(LocalRippleTheme provides AdditionalRippleTheme) {
                         val isSelected = selection == day
                         val eventsInDay =if (day.position == DayPosition.MonthDate) {
                             eventsMap[day.date].orEmpty()
@@ -295,16 +286,6 @@ private fun MonthHeader(
             )
         }
     }
-}
-
-
-// The default dark them ripple is too bright so we tone it down.
-private object CalendarRippleTheme : RippleTheme {
-    @Composable
-    override fun defaultColor() = RippleTheme.defaultRippleColor(Color.Gray, lightTheme = false)
-
-    @Composable
-    override fun rippleAlpha() = RippleTheme.defaultRippleAlpha(Color.Gray, lightTheme = false)
 }
 
 @Preview(heightDp = 600)
