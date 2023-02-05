@@ -131,13 +131,16 @@ fun CalendarScreen(
                 dayContent = { day ->
                     CompositionLocalProvider(LocalRippleTheme provides CalendarRippleTheme) {
                         val isSelected = selection == day
+                        val eventsInDay =if (day.position == DayPosition.MonthDate) {
+                            eventsMap[day.date].orEmpty()
+                        } else {
+                            emptyList()
+                        }
 
                         Day(
-                            day = day, eventsInDay = if (day.position == DayPosition.MonthDate) {
-                                eventsMap[day.date].orEmpty()
-                            } else {
-                                emptyList()
-                            }, modifier = Modifier
+                            day = day,
+                            eventsInDay = eventsInDay,
+                            modifier = Modifier
                                 .fillMaxHeight()
                                 .border(
                                     width = if (isSelected) 1.dp else 0.dp,
@@ -149,7 +152,9 @@ fun CalendarScreen(
                                     enabled = day.position == DayPosition.MonthDate,
                                     onClick = {
                                         selection = day
-                                        navigateToDaySchedule(day.date.toEpochDay())
+                                        if (eventsInDay.isNotEmpty()) {
+                                            navigateToDaySchedule(day.date.toEpochDay())
+                                        }
                                     },
                                 )
                                 .fillMaxWidth()

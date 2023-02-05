@@ -8,7 +8,7 @@ import javax.inject.Inject
 class AddEventInteractor @Inject constructor(
     private val eventsRepository: DataRepository,
 ) {
-    suspend fun addEvent(event: Event) {
+    suspend operator fun invoke(event: Event) {
         var eventTypeEntity = eventsRepository.getEventTypeByName(event.eventType.name)
 
         while (eventTypeEntity == null) {
@@ -17,6 +17,12 @@ class AddEventInteractor @Inject constructor(
         }
 
         eventsRepository.addEvent(EventMapper.mapToEntity(event, eventTypeEntity.id))
+    }
+
+    suspend operator fun invoke(events: List<Event>) {
+        events.forEach { event ->
+            invoke(event)
+        }
     }
 
 }

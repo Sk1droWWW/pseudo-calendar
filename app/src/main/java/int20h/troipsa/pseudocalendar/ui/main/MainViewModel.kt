@@ -1,5 +1,6 @@
 package int20h.troipsa.pseudocalendar.ui.main
 
+import android.util.Log
 import dagger.hilt.android.lifecycle.HiltViewModel
 import int20h.troipsa.pseudocalendar.data.prefs.PseudoPrefsManager
 import int20h.troipsa.pseudocalendar.data.prefs.base.get
@@ -22,16 +23,10 @@ class MainViewModel @Inject constructor(
     val user = getUserFlowInteractor()
         .stateIn(scope = scope, SharingStarted.Eagerly, null)
 
-    init {
-        generateEvents()
-    }
-
-    private fun generateEvents() {
+    fun generateEvents() {
         runCoroutine {
             if (!prefsManager.isEventsGenerated.get()) {
-                Event.generateEvents().forEach { event ->
-                    addEventInteractor.addEvent(event)
-                }
+                addEventInteractor(Event.generateEvents())
                 prefsManager.isEventsGenerated.set(true)
             }
         }
