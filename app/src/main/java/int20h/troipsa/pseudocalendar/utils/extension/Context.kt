@@ -1,4 +1,4 @@
-package int20h.troipsa.pseudocalendar.utils
+package int20h.troipsa.pseudocalendar.utils.extension
 
 import android.app.Activity
 import android.content.Context

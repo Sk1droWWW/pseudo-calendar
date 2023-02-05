@@ -11,15 +11,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.navigation.animation.AnimatedNavHost
+import androidx.navigation.navArgument
 import int20h.troipsa.pseudocalendar.ui.calendar.Calendar
 import int20h.troipsa.pseudocalendar.ui.contacts.Contacts
+import int20h.troipsa.pseudocalendar.ui.day_schedule.DaySchedule
+import int20h.troipsa.pseudocalendar.R
 
-@OptIn(ExperimentalAnimationApi::class)
+
 @Composable
 fun PseudoCalendarNavHost(
     modifier: Modifier = Modifier,
@@ -45,7 +48,7 @@ fun PseudoCalendarNavHost(
                             ?.any { it.route == screen.route } == true,
                         icon = {
                             Icon(
-                                painter = painterResource(id = screen.iconRes),
+                                painter = painterResource(id = screen.iconRes ?: R.drawable.ic_calendar),
                                 contentDescription = null
                             )
                         },
@@ -71,8 +74,29 @@ fun PseudoCalendarNavHost(
             startDestination = Screen.Calendar.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Calendar.route) { Calendar(navController) }
+            composable(Screen.Calendar.route) {
+                Calendar(
+                    navController = navController,
+                    navigateToDaySchedule = { day ->
+                        navController.navigate(Screen.DaySchedule.withArgs(day.toString()))
+                    }
+                )
+            }
             composable(Screen.Contacts.route) { Contacts(navController) }
+            composable(
+                route = Screen.DaySchedule.withArgsFormat(Screen.DaySchedule.epochDay),
+                arguments = listOf(
+                    navArgument(Screen.DaySchedule.epochDay) {
+                        type = NavType.LongType
+                    }
+                )
+            ) { navBackStackEntry ->
+                val args = navBackStackEntry.arguments
+                DaySchedule(
+                    epochDay = args?.getLong(Screen.DaySchedule.epochDay),
+                    popBackStack = { navController.popBackStack() }
+                )
+            }
         }
     }
 }

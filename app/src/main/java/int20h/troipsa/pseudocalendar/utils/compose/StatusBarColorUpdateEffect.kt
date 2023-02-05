@@ -15,8 +15,8 @@ import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import int20h.troipsa.pseudocalendar.R
-import int20h.troipsa.pseudocalendar.utils.findActivity
-import int20h.troipsa.pseudocalendar.utils.getColorCompat
+import int20h.troipsa.pseudocalendar.utils.extension.findActivity
+import int20h.troipsa.pseudocalendar.utils.extension.getColorCompat
 import java.lang.ref.WeakReference
 
 

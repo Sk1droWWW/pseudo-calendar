@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.kizitonwose.calendar.compose.ContentHeightMode
 import com.kizitonwose.calendar.compose.HorizontalCalendar
@@ -31,16 +32,14 @@ import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.*
 import int20h.troipsa.pseudocalendar.R
 import int20h.troipsa.pseudocalendar.domain.models.Event
-import int20h.troipsa.pseudocalendar.domain.models.generateEvents
 import int20h.troipsa.pseudocalendar.ui.basic.PseudoScaffold
 import int20h.troipsa.pseudocalendar.utils.compose.StatusBarColorUpdateEffect
 import int20h.troipsa.pseudocalendar.utils.displayText
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.YearMonth
 
-
-private val events = generateEvents().groupBy { it.startTime.toLocalDate() }
 
 private val pageBackgroundColor: Color @Composable get() = colorResource(R.color.example_5_page_bg_color)
 private val itemBackgroundColor: Color @Composable get() = colorResource(R.color.example_5_item_view_bg_color)
@@ -50,16 +49,26 @@ private val inActiveTextColor: Color @Composable get() = colorResource(R.color.e
 
 
 @Composable
-fun Calendar(navController: NavHostController) {
+fun Calendar(
+    navController: NavHostController, navigateToDaySchedule: (Long) -> Unit
+) {
     PseudoScaffold(
         modifier = Modifier.systemBarsPadding()
     ) {
-        CalendarScreen()
+        val viewModel = hiltViewModel<CalendarViewModel>()
+        val eventsMap by viewModel.eventsMap.collectAsState()
+
+        CalendarScreen(
+            eventsMap = eventsMap,
+            navigateToDaySchedule = navigateToDaySchedule,
+        )
     }
 }
 
 @Composable
-fun CalendarScreen() {
+fun CalendarScreen(
+    eventsMap: Map<LocalDate, List<Event>>, navigateToDaySchedule: (Long) -> Unit
+) {
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(500) }
     val endMonth = remember { currentMonth.plusMonths(500) }
@@ -124,13 +133,11 @@ fun CalendarScreen() {
                         val isSelected = selection == day
 
                         Day(
-                            day = day,
-                            eventsInDay = if (day.position == DayPosition.MonthDate) {
-                                events[day.date].orEmpty()
+                            day = day, eventsInDay = if (day.position == DayPosition.MonthDate) {
+                                eventsMap[day.date].orEmpty()
                             } else {
                                 emptyList()
-                            },
-                            modifier = Modifier
+                            }, modifier = Modifier
                                 .fillMaxHeight()
                                 .border(
                                     width = if (isSelected) 1.dp else 0.dp,
@@ -140,7 +147,10 @@ fun CalendarScreen() {
                                 .background(color = itemBackgroundColor)
                                 .clickable(
                                     enabled = day.position == DayPosition.MonthDate,
-                                    onClick = { selection = day },
+                                    onClick = {
+                                        selection = day
+                                        navigateToDaySchedule(day.date.toEpochDay())
+                                    },
                                 )
                                 .fillMaxWidth()
                                 .padding(bottom = 4.dp)
@@ -203,12 +213,10 @@ private fun Day(
 
 @Composable
 private fun DayHeader(
-    modifier: Modifier,
-    day: CalendarDay
+    modifier: Modifier, day: CalendarDay
 ) {
     Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.End
+        modifier = modifier, horizontalArrangement = Arrangement.End
     ) {
         val textColor = when (day.position) {
             DayPosition.MonthDate -> Color.Unspecified
@@ -227,8 +235,7 @@ private fun EventItemPoints(
     modifier: Modifier = Modifier
 ) {
     Row(
-        verticalAlignment = BiasAlignment.Vertical(-0.4f),
-        modifier = modifier
+        verticalAlignment = BiasAlignment.Vertical(-0.4f), modifier = modifier
     ) {
         repeat(3) {
             Box(
@@ -236,8 +243,7 @@ private fun EventItemPoints(
                     .padding(end = 1.dp)
                     .size((2.6).dp)
                     .background(
-                        shape = CircleShape,
-                        color = Color.White.copy(alpha = 0.6f)
+                        shape = CircleShape, color = Color.White.copy(alpha = 0.6f)
                     )
             )
         }
@@ -246,15 +252,12 @@ private fun EventItemPoints(
 
 @Composable
 private fun EventItem(
-    event: Event,
-    modifier: Modifier = Modifier
+    event: Event, modifier: Modifier = Modifier
 ) {
     Box(
         contentAlignment = Alignment.CenterStart,
-        modifier = modifier
-            .background(
-                color = colorResource(event.color),
-                shape = RoundedCornerShape(2.dp)
+        modifier = modifier.background(
+                color = Color(event.eventType.color), shape = RoundedCornerShape(2.dp)
             ),
     ) {
         Text(

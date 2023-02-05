@@ -1,4 +1,4 @@
-package int20h.troipsa.pseudocalendar.utils.compose
+package int20h.troipsa.pseudocalendar.utils.compose.extension
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.TextStyle
