@@ -10,6 +10,7 @@ import dagger.hilt.components.SingletonComponent
 import int20h.troipsa.pseudocalendar.BuildConfig
 import int20h.troipsa.pseudocalendar.data.local.MainDatabase
 import int20h.troipsa.pseudocalendar.data.network.ApiService
+import int20h.troipsa.pseudocalendar.data.prefs.PseudoPrefsManager
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -34,6 +35,12 @@ class DataSourceModule {
         val okHttpClient = createOkHttpClient()
 
         return createRetrofitService(okHttpClient, BuildConfig.BASE_URL)
+    }
+
+    @Provides
+    @Singleton
+    fun providePrefsManager(@ApplicationContext context: Context): PseudoPrefsManager {
+        return PseudoPrefsManager(context)
     }
 
     @OptIn(ExperimentalSerializationApi::class)
