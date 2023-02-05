@@ -1,9 +1,9 @@
-package int20h.troipsa.pseudocalendar.ui.base
+package int20h.troipsa.pseudocalendar.ui.base.view_model
 
-import int20h.troipsa.pseudocalendar.ui.base.errors.AppError
-import int20h.troipsa.pseudocalendar.ui.base.errors.NoNetworkError
-import int20h.troipsa.pseudocalendar.ui.base.errors.OtherError
-import int20h.troipsa.pseudocalendar.ui.base.errors.TimeoutError
+import int20h.troipsa.pseudocalendar.ui.base.view_model.errors.AppError
+import int20h.troipsa.pseudocalendar.ui.base.view_model.errors.NoNetworkError
+import int20h.troipsa.pseudocalendar.ui.base.view_model.errors.OtherError
+import int20h.troipsa.pseudocalendar.ui.base.view_model.errors.TimeoutError
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

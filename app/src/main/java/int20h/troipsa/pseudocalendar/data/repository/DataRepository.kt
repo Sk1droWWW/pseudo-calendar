@@ -23,6 +23,10 @@ class DataRepository @Inject constructor(
         return mainDatabase.eventsDao().getEventsByDay(epochDay)
     }
 
+    fun getEvent(eventId: Int): Flow<EventWithTypeProjection> {
+        return mainDatabase.eventsDao().getEvent(eventId)
+    }
+
     fun getEvents(): Flow<List<EventWithTypeProjection>> {
         return mainDatabase.eventsDao().getEvents()
     }

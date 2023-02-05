@@ -1,6 +1,5 @@
 package int20h.troipsa.pseudocalendar.ui.main
 
-import android.util.Log
 import dagger.hilt.android.lifecycle.HiltViewModel
 import int20h.troipsa.pseudocalendar.data.prefs.PseudoPrefsManager
 import int20h.troipsa.pseudocalendar.data.prefs.base.get
@@ -8,7 +7,7 @@ import int20h.troipsa.pseudocalendar.data.prefs.base.set
 import int20h.troipsa.pseudocalendar.domain.interactors.AddEventInteractor
 import int20h.troipsa.pseudocalendar.domain.interactors.GetUserFlowInteractor
 import int20h.troipsa.pseudocalendar.domain.models.Event
-import int20h.troipsa.pseudocalendar.ui.base.BaseViewModel
+import int20h.troipsa.pseudocalendar.ui.base.view_model.BaseViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject

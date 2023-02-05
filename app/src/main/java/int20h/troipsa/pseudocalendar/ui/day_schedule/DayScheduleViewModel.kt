@@ -3,11 +3,10 @@ package int20h.troipsa.pseudocalendar.ui.day_schedule
 import dagger.hilt.android.lifecycle.HiltViewModel
 import int20h.troipsa.pseudocalendar.domain.interactors.GetDayScheduleInteractor
 import int20h.troipsa.pseudocalendar.domain.models.DaySchedule
-import int20h.troipsa.pseudocalendar.ui.base.BaseViewModel
+import int20h.troipsa.pseudocalendar.ui.base.view_model.BaseViewModel
 import int20h.troipsa.pseudocalendar.utils.coroutines.launchAndCollect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
 import javax.inject.Inject
 
 @HiltViewModel

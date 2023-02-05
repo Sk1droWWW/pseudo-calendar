@@ -29,7 +29,7 @@ import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.*
 import int20h.troipsa.pseudocalendar.domain.models.Event
-import int20h.troipsa.pseudocalendar.ui.basic.PseudoScaffold
+import int20h.troipsa.pseudocalendar.ui.base.ui.PseudoScaffold
 import int20h.troipsa.pseudocalendar.ui.theme.*
 import int20h.troipsa.pseudocalendar.utils.compose.AdditionalRippleTheme
 import int20h.troipsa.pseudocalendar.utils.compose.StatusBarColorUpdateEffect
@@ -40,8 +40,9 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 @Composable
-fun Calendar(
-    navController: NavHostController, navigateToDaySchedule: (Long) -> Unit
+fun CalendarScreen(
+    navController: NavHostController,
+    navigateToDaySchedule: (Long) -> Unit
 ) {
     PseudoScaffold(
         modifier = Modifier.systemBarsPadding()
@@ -65,12 +66,6 @@ fun CalendarScreen(
     val endMonth = remember { currentMonth.plusMonths(500) }
     var selection by remember { mutableStateOf<CalendarDay?>(null) }
     val daysOfWeek = remember { daysOfWeek() }
-    /* val flightsInSelectedDate = remember {
-         derivedStateOf {
-             val date = selection?.date
-             if (date == null) emptyList() else events[date].orEmpty()
-         }
-     }*/
 
     StatusBarColorUpdateEffect(toolbarColor)
 

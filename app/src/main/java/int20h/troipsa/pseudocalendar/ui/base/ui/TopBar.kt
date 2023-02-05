@@ -1,4 +1,4 @@
-package int20h.troipsa.pseudocalendar.ui.basic
+package int20h.troipsa.pseudocalendar.ui.base.ui
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.clickable

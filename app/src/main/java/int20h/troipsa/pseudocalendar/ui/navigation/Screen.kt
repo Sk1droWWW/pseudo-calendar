@@ -17,6 +17,9 @@ sealed class Screen(
     object DaySchedule : Screen("day_schedule", R.string.day_schedule_title) {
         val epochDay = "epochDay"
     }
+    object Event : Screen("event", R.string.event_title_info) {
+        val eventId = "eventId"
+    }
 
     // build navigation path (for screen navigation)
     fun withArgs(vararg args: String): String {

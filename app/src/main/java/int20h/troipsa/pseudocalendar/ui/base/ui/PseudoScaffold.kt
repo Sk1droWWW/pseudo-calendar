@@ -1,4 +1,4 @@
-package int20h.troipsa.pseudocalendar.ui.basic
+package int20h.troipsa.pseudocalendar.ui.base.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

@@ -1,4 +1,4 @@
-package int20h.troipsa.pseudocalendar.ui.base.errors
+package int20h.troipsa.pseudocalendar.ui.base.view_model.errors
 
 sealed class AppError(val throwable: Throwable)
 

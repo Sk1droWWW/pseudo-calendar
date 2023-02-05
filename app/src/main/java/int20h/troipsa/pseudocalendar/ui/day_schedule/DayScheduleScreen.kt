@@ -25,8 +25,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import int20h.troipsa.pseudocalendar.R
 import int20h.troipsa.pseudocalendar.domain.models.DaySchedule
 import int20h.troipsa.pseudocalendar.domain.models.Event
-import int20h.troipsa.pseudocalendar.ui.basic.PseudoScaffold
-import int20h.troipsa.pseudocalendar.ui.basic.defaultTopBarProvider
+import int20h.troipsa.pseudocalendar.ui.base.ui.PseudoScaffold
+import int20h.troipsa.pseudocalendar.ui.base.ui.defaultTopBarProvider
 import int20h.troipsa.pseudocalendar.ui.theme.itemBackgroundColor
 import int20h.troipsa.pseudocalendar.ui.theme.pageBackgroundColor
 import int20h.troipsa.pseudocalendar.ui.theme.toolbarColor
@@ -41,12 +41,14 @@ import java.time.ZoneOffset
 
 
 @Composable
-fun DaySchedule(
+fun DayScheduleScreen(
     epochDay: Long?,
+    navigateToEvent: (Int) -> Unit,
     popBackStack: () -> Unit
 ) {
     BackHandler(
-        enabled = true, onBack = popBackStack
+        enabled = true,
+        onBack = popBackStack
     )
 
     PseudoScaffold(
@@ -80,6 +82,7 @@ fun DaySchedule(
             )
 
             EventsList(
+                onItemClick = navigateToEvent,
                 daySchedule = daySchedule,
                 modifier = Modifier
                     .padding(top = 16.dp)
@@ -130,6 +133,7 @@ private fun DayScheduleHeader(
 
 @Composable
 private fun EventsList(
+    onItemClick: (Int) -> Unit,
     daySchedule: DaySchedule,
     modifier: Modifier = Modifier
 ) {
@@ -147,6 +151,14 @@ private fun EventsList(
             EventItem(
                 event = event,
                 modifier = Modifier
+                    .height(60.dp)
+                    .background(
+                        color = pageBackgroundColor,
+                        shape = RoundedCornerShape(4.dp)
+                    )
+                    .clip(RoundedCornerShape(4.dp))
+                    .clickable(onClick = { onItemClick(event.id) })
+                    .fillMaxWidth()
             )
         }
     }
@@ -169,21 +181,13 @@ private fun EventsHeader(
 @Composable
 private fun EventItem(
     event: Event,
-    modifier: Modifier = Modifier,
-    onItemClick: (Event) -> Unit = {}
+    modifier: Modifier = Modifier
 ) {
     CompositionLocalProvider(LocalRippleTheme provides AdditionalRippleTheme) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .height(59.dp)
-                .background(
-                    color = pageBackgroundColor,
-                    shape = RoundedCornerShape(4.dp)
-                )
-                .clip(RoundedCornerShape(4.dp))
-                .clickable(onClick = { onItemClick(event) })
-                .fillMaxWidth()
+            modifier = modifier
+
         ) {
             Box(
                 modifier = Modifier

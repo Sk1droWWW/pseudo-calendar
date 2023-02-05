@@ -6,8 +6,8 @@ import java.time.YearMonth
 
 data class Event(
     val id: Int = 0,
-    val name: String = "Event Sample",
-    val description: String = "Description Sample",
+    val name: String = "",
+    val description: String = "",
     val startTime: LocalDateTime,
     val endTime: LocalDateTime,
     val epochDay: Long = startTime.toLocalDate().toEpochDay(),

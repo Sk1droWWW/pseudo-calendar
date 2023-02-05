@@ -12,4 +12,10 @@
     <string name="day_schedule_event_type">type:</string>
     <!--DaySchedule-->
 
+    <!--Event-->
+    <string name="event_title_info">Event Info</string>
+    <string name="event_title_create">Create Event</string>
+    <string name="event_action_save">Save</string>
+    <string name="event_name_placeholder">Type event name..</string>
+    <!--Event-->
 </resources>

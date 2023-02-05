@@ -1,8 +1,8 @@
-package int20h.troipsa.pseudocalendar.ui.base
+package int20h.troipsa.pseudocalendar.ui.base.view_model
 
 import androidx.annotation.CallSuper
 import androidx.lifecycle.ViewModel
-import int20h.troipsa.pseudocalendar.ui.base.errors.AppError
+import int20h.troipsa.pseudocalendar.ui.base.view_model.errors.AppError
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

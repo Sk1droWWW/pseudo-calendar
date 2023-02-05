@@ -14,11 +14,14 @@ abstract class EventsDao : BaseDao<EventEntity>() {
 
     @Transaction
     @Query("SELECT * FROM events WHERE epoch_day=:day ORDER BY start_time")
-    abstract fun getEventsByDay(day: Long) : Flow<List<EventWithTypeProjection>>
+    abstract fun getEventsByDay(day: Long): Flow<List<EventWithTypeProjection>>
 
     @Transaction
     @Query("SELECT * FROM events ORDER BY start_time")
     abstract fun getEvents() : Flow<List<EventWithTypeProjection>>
 
+    @Transaction
+    @Query("SELECT * FROM events WHERE event_id=:eventId")
+    abstract fun getEvent(eventId: Int) : Flow<EventWithTypeProjection>
 
 }
