@@ -27,6 +27,7 @@ object EventMapper {
     )
 
     fun mapToEntity(event: Event, eventTypeId: Int) = EventEntity(
+        id = event.id,
         name = event.name,
         epochDay = event.epochDay,
         startTime = event.startTime,

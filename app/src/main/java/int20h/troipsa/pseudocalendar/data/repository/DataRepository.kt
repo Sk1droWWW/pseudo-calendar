@@ -43,8 +43,8 @@ class DataRepository @Inject constructor(
         mainDatabase.eventsDao().insertOrReplace(event)
     }
 
-    suspend fun addEvents(events: List<EventEntity>) {
-        mainDatabase.eventsDao().insertOrReplace(events)
+    suspend fun deleteEvent(eventId: Int) {
+        mainDatabase.eventsDao().deleteEvent(eventId)
     }
 
     fun getCurrentUserFlow(): Flow<UserEntity?> {

@@ -3,6 +3,7 @@ package int20h.troipsa.pseudocalendar.domain.interactors
 import int20h.troipsa.pseudocalendar.data.local.mapper.EventMapper
 import int20h.troipsa.pseudocalendar.data.repository.DataRepository
 import int20h.troipsa.pseudocalendar.domain.models.Event
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class AddEventInteractor @Inject constructor(

@@ -24,4 +24,7 @@ abstract class EventsDao : BaseDao<EventEntity>() {
     @Query("SELECT * FROM events WHERE event_id=:eventId")
     abstract fun getEvent(eventId: Int) : Flow<EventWithTypeProjection>
 
+    @Query("DELETE FROM events WHERE event_id=:eventId")
+    abstract suspend fun deleteEvent(eventId: Int)
+
 }

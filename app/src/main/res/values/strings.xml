@@ -17,5 +17,6 @@
     <string name="event_title_create">Create Event</string>
     <string name="event_action_save">Save</string>
     <string name="event_name_placeholder">Type event name..</string>
+    <string name="event_name_delete_button">Delete</string>
     <!--Event-->
 </resources>

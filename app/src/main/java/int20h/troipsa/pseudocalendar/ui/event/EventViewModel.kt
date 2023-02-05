@@ -1,6 +1,9 @@
 package int20h.troipsa.pseudocalendar.ui.event
 
+import android.util.Log
 import dagger.hilt.android.lifecycle.HiltViewModel
+import int20h.troipsa.pseudocalendar.domain.interactors.AddEventInteractor
+import int20h.troipsa.pseudocalendar.domain.interactors.DeleteEventInteractor
 import int20h.troipsa.pseudocalendar.domain.interactors.GetEventInteractor
 import int20h.troipsa.pseudocalendar.domain.models.Event
 import int20h.troipsa.pseudocalendar.domain.models.EventType
@@ -12,7 +15,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EventViewModel @Inject constructor(
-    private val getEventInteractor: GetEventInteractor
+    private val getEventInteractor: GetEventInteractor,
+    private val addEventInteractor: AddEventInteractor,
+    private val deleteEventInteractor: DeleteEventInteractor
 ) : BaseViewModel() {
 
     private val _event = MutableStateFlow(defaultEvent)
@@ -25,11 +30,33 @@ class EventViewModel @Inject constructor(
         event != updatedEvent
     }.stateIn(scope, SharingStarted.Eagerly, false)
 
+    val canDelete = _event.map {
+        it.id != 0
+    }.stateIn(scope, SharingStarted.Eagerly, false)
+
+    private val _closeScreen = MutableSharedFlow<Unit>()
+    val closeScreen = _closeScreen.asSharedFlow()
+
     fun loadEvent(eventId: Int) {
         runCoroutine {
             getEventInteractor(eventId).launchAndCollect(this) { event ->
                 _event.value = event
+                _updatedEvent.value = event
             }
+        }
+    }
+
+    fun saveEvent() {
+        runCoroutine {
+            addEventInteractor(_updatedEvent.value)
+            closeScreen()
+        }
+    }
+
+    fun deleteEvent() {
+        runCoroutine {
+            deleteEventInteractor(_updatedEvent.value.id)
+            closeScreen()
         }
     }
 
@@ -37,11 +64,9 @@ class EventViewModel @Inject constructor(
         _updatedEvent.value = _updatedEvent.value.copy(name = name)
     }
 
-    fun saveEvent() {
-        runCoroutine(
-            withProgress = true,
-        ) {
-
+    private fun closeScreen() {
+        runCoroutine {
+            _closeScreen.emit(Unit)
         }
     }
 

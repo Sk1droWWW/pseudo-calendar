@@ -5,6 +5,7 @@ import int20h.troipsa.pseudocalendar.data.repository.DataRepository
 import int20h.troipsa.pseudocalendar.domain.models.Event
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import javax.inject.Inject
 
 class GetEventInteractor @Inject constructor(
