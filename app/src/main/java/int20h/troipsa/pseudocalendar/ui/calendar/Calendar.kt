@@ -1,13 +1,11 @@
 package int20h.troipsa.pseudocalendar.ui.calendar
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.Text
@@ -16,12 +14,13 @@ import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,19 +30,17 @@ import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.*
 import int20h.troipsa.pseudocalendar.R
-import int20h.troipsa.pseudocalendar.domain.models.Flight
-import int20h.troipsa.pseudocalendar.domain.models.flightDateTimeFormatter
-import int20h.troipsa.pseudocalendar.domain.models.generateFlights
+import int20h.troipsa.pseudocalendar.domain.models.Event
+import int20h.troipsa.pseudocalendar.domain.models.generateEvents
 import int20h.troipsa.pseudocalendar.ui.basic.PseudoScaffold
 import int20h.troipsa.pseudocalendar.utils.compose.StatusBarColorUpdateEffect
 import int20h.troipsa.pseudocalendar.utils.displayText
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.YearMonth
-import java.util.*
 
 
-private val flights = generateFlights().groupBy { it.time.toLocalDate() }
+private val events = generateEvents().groupBy { it.startTime.toLocalDate() }
 
 private val pageBackgroundColor: Color @Composable get() = colorResource(R.color.example_5_page_bg_color)
 private val itemBackgroundColor: Color @Composable get() = colorResource(R.color.example_5_item_view_bg_color)
@@ -68,12 +65,12 @@ fun CalendarScreen() {
     val endMonth = remember { currentMonth.plusMonths(500) }
     var selection by remember { mutableStateOf<CalendarDay?>(null) }
     val daysOfWeek = remember { daysOfWeek() }
-    val flightsInSelectedDate = remember {
-        derivedStateOf {
-            val date = selection?.date
-            if (date == null) emptyList() else flights[date].orEmpty()
-        }
-    }
+    /* val flightsInSelectedDate = remember {
+         derivedStateOf {
+             val date = selection?.date
+             if (date == null) emptyList() else events[date].orEmpty()
+         }
+     }*/
 
     StatusBarColorUpdateEffect(toolbarColor)
 
@@ -100,9 +97,6 @@ fun CalendarScreen() {
         // Draw light content on dark background.
         CompositionLocalProvider(LocalContentColor provides darkColors().onSurface) {
             SimpleCalendarTitle(
-                modifier = Modifier
-                    .background(toolbarColor)
-                    .padding(horizontal = 8.dp, vertical = 12.dp),
                 currentMonth = visibleMonth.yearMonth,
                 goToPrevious = {
                     coroutineScope.launch {
@@ -114,6 +108,9 @@ fun CalendarScreen() {
                         state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth)
                     }
                 },
+                modifier = Modifier
+                    .background(toolbarColor)
+                    .padding(horizontal = 8.dp, vertical = 12.dp),
             )
 
             HorizontalCalendar(
@@ -124,18 +121,30 @@ fun CalendarScreen() {
                 contentHeightMode = ContentHeightMode.Fill,
                 dayContent = { day ->
                     CompositionLocalProvider(LocalRippleTheme provides CalendarRippleTheme) {
-                        val colors = if (day.position == DayPosition.MonthDate) {
-                            flights[day.date].orEmpty().map { colorResource(it.color) }
-                        } else {
-                            emptyList()
-                        }
+                        val isSelected = selection == day
+
                         Day(
                             day = day,
-                            isSelected = selection == day,
-                            colors = colors,
-                        ) { clicked ->
-                            selection = clicked
-                        }
+                            eventsInDay = if (day.position == DayPosition.MonthDate) {
+                                events[day.date].orEmpty()
+                            } else {
+                                emptyList()
+                            },
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .border(
+                                    width = if (isSelected) 1.dp else 0.dp,
+                                    color = if (isSelected) selectedItemColor else Color.Transparent,
+                                )
+                                .padding(1.dp)
+                                .background(color = itemBackgroundColor)
+                                .clickable(
+                                    enabled = day.position == DayPosition.MonthDate,
+                                    onClick = { selection = day },
+                                )
+                                .fillMaxWidth()
+                                .padding(bottom = 4.dp)
+                        )
                     }
                 },
                 monthHeader = {
@@ -146,12 +155,6 @@ fun CalendarScreen() {
                 },
             )
             Divider(color = pageBackgroundColor)
-
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(items = flightsInSelectedDate.value) { flight ->
-                    FlightInformation(flight)
-                }
-            }
         }
     }
 }
@@ -159,54 +162,111 @@ fun CalendarScreen() {
 @Composable
 private fun Day(
     day: CalendarDay,
-    isSelected: Boolean = false,
-    colors: List<Color> = emptyList(),
-    onClick: (CalendarDay) -> Unit = {},
+    modifier: Modifier = Modifier,
+    eventsInDay: List<Event> = emptyList(),
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxHeight()
-//            .aspectRatio(1/1.7f) // This is important for square-sizing!
-            .border(
-                width = if (isSelected) 1.dp else 0.dp,
-                color = if (isSelected) selectedItemColor else Color.Transparent,
-            )
-            .padding(1.dp)
-            .background(color = itemBackgroundColor)
-            // Disable clicks on inDates/outDates
-            .clickable(
-                enabled = day.position == DayPosition.MonthDate,
-                onClick = { onClick(day) },
-            ),
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy((3.5).dp),
+    ) {
+        DayHeader(
+            day = day,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 3.dp, end = 4.dp, bottom = 2.dp)
+        )
+
+        eventsInDay.forEachIndexed { index, event ->
+            when {
+                eventsInDay.size > 4 && index > 3 -> return@forEachIndexed
+                eventsInDay.size > 4 && index == 3 -> {
+                    EventItemPoints(
+                        modifier = Modifier
+                            .padding(horizontal = 5.dp)
+                            .fillMaxWidth()
+                            .height(16.dp)
+                    )
+                }
+                else -> {
+                    EventItem(
+                        event = event,
+                        modifier = Modifier
+                            .padding(horizontal = 3.dp)
+                            .fillMaxWidth()
+                            .height(16.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DayHeader(
+    modifier: Modifier,
+    day: CalendarDay
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.End
     ) {
         val textColor = when (day.position) {
             DayPosition.MonthDate -> Color.Unspecified
             DayPosition.InDate, DayPosition.OutDate -> inActiveTextColor
         }
         Text(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 3.dp, end = 4.dp),
             text = day.date.dayOfMonth.toString(),
             color = textColor,
             fontSize = 12.sp,
         )
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            for (color in colors) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(5.dp)
-                        .background(color),
-                )
-            }
+    }
+}
+
+@Composable
+private fun EventItemPoints(
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = BiasAlignment.Vertical(-0.4f),
+        modifier = modifier
+    ) {
+        repeat(3) {
+            Box(
+                modifier = Modifier
+                    .padding(end = 1.dp)
+                    .size((2.6).dp)
+                    .background(
+                        shape = CircleShape,
+                        color = Color.White.copy(alpha = 0.6f)
+                    )
+            )
         }
+    }
+}
+
+@Composable
+private fun EventItem(
+    event: Event,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        contentAlignment = Alignment.CenterStart,
+        modifier = modifier
+            .background(
+                color = colorResource(event.color),
+                shape = RoundedCornerShape(2.dp)
+            ),
+    ) {
+        Text(
+            text = event.name,
+            color = Color.White,
+            fontSize = 9.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .padding(horizontal = (2.5).dp)
+                .align(Alignment.CenterStart),
+        )
     }
 }
 
@@ -229,93 +289,6 @@ private fun MonthHeader(
     }
 }
 
-@Composable
-private fun LazyItemScope.FlightInformation(flight: Flight) {
-    Row(
-        modifier = Modifier
-            .fillParentMaxWidth()
-            .height(IntrinsicSize.Max),
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
-    ) {
-        Box(
-            modifier = Modifier
-                .background(color = colorResource(flight.color))
-                .fillParentMaxWidth(1 / 7f)
-                .aspectRatio(1f),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = flightDateTimeFormatter.format(flight.time).uppercase(Locale.ENGLISH),
-                textAlign = TextAlign.Center,
-                lineHeight = 17.sp,
-                fontSize = 12.sp,
-            )
-        }
-        Box(
-            modifier = Modifier
-                .background(color = itemBackgroundColor)
-                .weight(1f)
-                .fillMaxHeight(),
-        ) {
-            AirportInformation(flight.departure, isDeparture = true)
-        }
-        Box(
-            modifier = Modifier
-                .background(color = itemBackgroundColor)
-                .weight(1f)
-                .fillMaxHeight(),
-        ) {
-            AirportInformation(flight.destination, isDeparture = false)
-        }
-    }
-    Divider(color = pageBackgroundColor, thickness = 2.dp)
-}
-
-@Composable
-private fun AirportInformation(airport: Flight.Airport, isDeparture: Boolean) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
-    ) {
-        val resource = if (isDeparture) {
-            R.drawable.ic_chevron_right
-        } else {
-            R.drawable.ic_chevron_left
-        }
-        Box(
-            modifier = Modifier
-                .weight(0.3f)
-                .fillMaxHeight()
-                .fillMaxHeight(),
-            contentAlignment = Alignment.CenterEnd,
-        ) {
-            Image(painter = painterResource(resource), contentDescription = null)
-        }
-        Column(
-            modifier = Modifier
-                .weight(0.7f)
-                .fillMaxHeight()
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = airport.code,
-                textAlign = TextAlign.Center,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = airport.city,
-                textAlign = TextAlign.Center,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Light,
-            )
-        }
-    }
-}
 
 // The default dark them ripple is too bright so we tone it down.
 private object CalendarRippleTheme : RippleTheme {
