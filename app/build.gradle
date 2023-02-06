@@ -86,6 +86,7 @@ dependencies {
 
     // Accompanist
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-flowlayout:$accompanist_version"
 
     // Room
     implementation "androidx.room:room-runtime:$room_version"
@@ -123,6 +124,10 @@ dependencies {
 
     // The compose calendar library
     implementation "com.kizitonwose.calendar:compose:$compose_calendar"
+
+    // Color Picker
+    implementation "com.godaddy.android.colorpicker:compose-color-picker:$color_picker_version"
+    implementation "com.godaddy.android.colorpicker:compose-color-picker-android:$color_picker_version"
 
     implementation "com.marosseleng.android:compose-material3-datetime-pickers:$compose_datetime_version"
 

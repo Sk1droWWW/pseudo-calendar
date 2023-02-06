@@ -25,3 +25,17 @@ fun Modifier.clickable(
         onClick = onClick,
     )
 }
+
+/**
+ * Use modifier from `onApply` only if `apply` is true
+ */
+inline fun Modifier.optional(
+    canApply: Boolean,
+    onApply: Modifier.() -> Modifier,
+) = this.let {
+    if (canApply) {
+        it.onApply()
+    } else {
+        it
+    }
+}

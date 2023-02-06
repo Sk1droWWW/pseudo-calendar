@@ -21,6 +21,7 @@ import int20h.troipsa.pseudocalendar.ui.contacts.ContactsScreen
 import int20h.troipsa.pseudocalendar.ui.day_schedule.DayScheduleScreen
 import int20h.troipsa.pseudocalendar.R
 import int20h.troipsa.pseudocalendar.ui.event.EventScreen
+import int20h.troipsa.pseudocalendar.ui.event_type.EventTypeScreen
 
 
 @Composable
@@ -108,6 +109,21 @@ fun PseudoCalendarNavHost(
             ) { navBackStackEntry ->
                 EventScreen(
                     eventId = navBackStackEntry.arguments?.getInt(Screen.Event.eventId),
+                    navigateToEventType = { eventTypeId ->
+                        navController.navigate(Screen.EventType.withArgs(eventTypeId.toString()))
+                    },
+                    popBackStack = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = Screen.EventType.withArgsFormat(Screen.EventType.eventTypeId),
+                arguments = listOf(
+                    navArgument(Screen.EventType.eventTypeId) { type = NavType.IntType }
+                )
+            ) { navBackStackEntry ->
+                EventTypeScreen(
+                    eventTypeId = navBackStackEntry.arguments?.getInt(Screen.EventType.eventTypeId),
                     popBackStack = { navController.popBackStack() }
                 )
             }

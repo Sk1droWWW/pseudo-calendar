@@ -35,8 +35,16 @@ class DataRepository @Inject constructor(
         mainDatabase.eventsTypeDao().insertOrReplace(eventType)
     }
 
+    fun getEventTypes(): Flow<List<EventTypeEntity>> {
+        return mainDatabase.eventsTypeDao().getEventTypes()
+    }
+
     fun getEventTypeByName(name: String): EventTypeEntity? {
         return mainDatabase.eventsTypeDao().getEventTypeByName(name)
+    }
+
+    fun getEventTypeById(id: Int): Flow<EventTypeEntity> {
+        return mainDatabase.eventsTypeDao().getEventTypeById(id)
     }
 
     suspend fun addEvent(event: EventEntity) {

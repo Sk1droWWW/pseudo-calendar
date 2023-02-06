@@ -19,4 +19,8 @@
     <string name="event_name_placeholder">Type event name..</string>
     <string name="event_name_delete_button">Delete</string>
     <!--Event-->
+
+    <!--Event Type-->
+    <string name="event_type_title_info">Event Type Info</string>
+    <!--Event Type-->
 </resources>

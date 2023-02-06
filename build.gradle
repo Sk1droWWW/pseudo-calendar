@@ -26,6 +26,7 @@ buildscript {
 
         compose_calendar = '2.1.1'
         compose_datetime_version = '0.5.0'
+        color_picker_version = '0.7.0'
 
         ksp_version = '1.7.20-1.0.7'
     }

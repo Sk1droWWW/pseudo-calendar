@@ -4,6 +4,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import int20h.troipsa.pseudocalendar.domain.interactors.AddEventInteractor
 import int20h.troipsa.pseudocalendar.domain.interactors.DeleteEventInteractor
 import int20h.troipsa.pseudocalendar.domain.interactors.GetEventInteractor
+import int20h.troipsa.pseudocalendar.domain.interactors.GetEventTypesInteractor
 import int20h.troipsa.pseudocalendar.domain.models.Event
 import int20h.troipsa.pseudocalendar.domain.models.EventType
 import int20h.troipsa.pseudocalendar.ui.base.view_model.BaseViewModel
@@ -19,11 +20,15 @@ import javax.inject.Inject
 class EventViewModel @Inject constructor(
     private val getEventInteractor: GetEventInteractor,
     private val addEventInteractor: AddEventInteractor,
-    private val deleteEventInteractor: DeleteEventInteractor
+    private val deleteEventInteractor: DeleteEventInteractor,
+    private val getEventTypes: GetEventTypesInteractor,
 ) : BaseViewModel() {
 
     private val _event = MutableStateFlow(defaultEvent)
     val event = _event.asStateFlow()
+
+    private val _eventTypes = MutableStateFlow<List<EventType>>(emptyList())
+    val eventTypes = _eventTypes.asStateFlow()
 
     private val _updatedEvent = MutableStateFlow(_event.value)
     val updatedEvent = _updatedEvent.asStateFlow()
@@ -48,18 +53,24 @@ class EventViewModel @Inject constructor(
     private val _timeFrame = MutableStateFlow(Timeframes.START)
     val timeFrame = _timeFrame.asStateFlow()
 
-    fun loadEvent(eventId: Int) {
+    fun initScreenInfo(eventId: Int) {
         runCoroutine {
             getEventInteractor(eventId).launchAndCollect(this) { event ->
                 _event.value = event
                 _updatedEvent.value = event
+            }
+            getEventTypes().launchAndCollect(this) { eventTypes ->
+                _eventTypes.value = eventTypes
             }
         }
     }
 
     fun saveEvent() {
         runCoroutine {
-            addEventInteractor(_updatedEvent.value)
+            val event = _updatedEvent.value
+            addEventInteractor(
+                event.copy(epochDay = event.startTime.toLocalDate().toEpochDay())
+            )
             closeScreen()
         }
     }
@@ -95,10 +106,14 @@ class EventViewModel @Inject constructor(
     }
 
     fun onDateChange(date: LocalDate) {
+        val startTime = _updatedEvent.value.startTime.toLocalTime()
+        val endTime = _updatedEvent.value.endTime.toLocalTime()
+
         _updatedEvent.value = _updatedEvent.value.copy(
-            startTime = date.atStartOfDay(),
-            endTime = date.atStartOfDay()
+            startTime = date.atTime(startTime),
+            endTime = date.atTime(endTime)
         )
+
         showDateDialog(false)
     }
 
@@ -120,6 +135,10 @@ class EventViewModel @Inject constructor(
             }
         }
         showTimeDialog(false)
+    }
+
+    fun onEventTypeChange(eventType: EventType) {
+        _updatedEvent.value = _updatedEvent.value.copy(eventType = eventType)
     }
 
     private fun closeScreen() {

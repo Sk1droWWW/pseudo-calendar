@@ -2,9 +2,6 @@ package int20h.troipsa.pseudocalendar.ui.navigation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.List
-import androidx.compose.ui.graphics.vector.ImageVector
 import int20h.troipsa.pseudocalendar.R
 
 sealed class Screen(
@@ -17,25 +14,30 @@ sealed class Screen(
     object DaySchedule : Screen("day_schedule", R.string.day_schedule_title) {
         val epochDay = "epochDay"
     }
+
     object Event : Screen("event", R.string.event_title_info) {
         val eventId = "eventId"
+    }
+
+    object EventType : Screen("event_type", R.string.event_type_title_info) {
+        val eventTypeId = "eventId"
     }
 
     // build navigation path (for screen navigation)
     fun withArgs(vararg args: String): String {
         return buildString {
             append(route)
-            args.forEach{ arg ->
+            args.forEach { arg ->
                 append("/$arg")
             }
         }
     }
 
     // build and setup route format (in navigation graph)
-    fun withArgsFormat(vararg args: String) : String {
+    fun withArgsFormat(vararg args: String): String {
         return buildString {
             append(route)
-            args.forEach{ arg ->
+            args.forEach { arg ->
                 append("/{$arg}")
             }
         }

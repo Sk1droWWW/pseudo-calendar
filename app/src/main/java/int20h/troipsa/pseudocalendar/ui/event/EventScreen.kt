@@ -2,6 +2,7 @@ package int20h.troipsa.pseudocalendar.ui.event
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.flowlayout.FlowRow
 import com.marosseleng.compose.material3.datetimepickers.date.ui.dialog.DatePickerDialog
 import com.marosseleng.compose.material3.datetimepickers.time.ui.dialog.TimePickerDialog
 import int20h.troipsa.pseudocalendar.R
@@ -25,6 +27,9 @@ import int20h.troipsa.pseudocalendar.ui.theme.itemBackgroundColor
 import int20h.troipsa.pseudocalendar.ui.theme.pageBackgroundColor
 import int20h.troipsa.pseudocalendar.ui.theme.toolbarColor
 import int20h.troipsa.pseudocalendar.utils.compose.AdditionalRippleTheme
+import int20h.troipsa.pseudocalendar.utils.compose.extension.bold
+import int20h.troipsa.pseudocalendar.utils.compose.extension.medium
+import int20h.troipsa.pseudocalendar.utils.compose.extension.optional
 import int20h.troipsa.pseudocalendar.utils.coroutines.launchAndCollect
 import int20h.troipsa.pseudocalendar.utils.displayText
 import int20h.troipsa.pseudocalendar.utils.extension.formatToDaySchedule
@@ -35,7 +40,8 @@ import java.util.*
 @Composable
 fun EventScreen(
     eventId: Int?,
-    popBackStack: () -> Unit
+    popBackStack: () -> Unit,
+    navigateToEventType: (String) -> Unit = {},
 ) {
     BackHandler(
         enabled = true,
@@ -63,14 +69,17 @@ fun EventScreen(
         )
     ) {
         val event by viewModel.updatedEvent.collectAsState()
+        val eventTypes by viewModel.eventTypes.collectAsState()
+
         val canDelete by viewModel.canDelete.collectAsState()
+
         val dateDialogVisible by viewModel.dateDialogVisible.collectAsState()
         val timeDialogVisible by viewModel.timeDialogVisible.collectAsState()
         val timeFrame by viewModel.timeFrame.collectAsState()
 
         LaunchedEffect(eventId) {
             if (eventId != null) {
-                viewModel.loadEvent(eventId)
+                viewModel.initScreenInfo(eventId)
             }
         }
 
@@ -180,6 +189,67 @@ fun EventScreen(
                 )
             }
 
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "Event Type",
+                    style = MaterialTheme.typography.body1.medium(),
+                    color = MaterialTheme.colors.onPrimary,
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(
+                    onClick = { navigateToEventType(event.eventType.id.toString()) },
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_edit),
+                        contentDescription = null,
+                        tint = MaterialTheme.colors.onPrimary
+                    )
+                }
+                IconButton(
+                    onClick = { navigateToEventType(0.toString()) },
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_add),
+                        contentDescription = null,
+                        tint = MaterialTheme.colors.onPrimary
+                    )
+                }
+            }
+
+            FlowRow(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .fillMaxWidth()
+            ) {
+                eventTypes.forEach { eventType ->
+                    val selected = event.eventType == eventType
+                    Text(
+                        text = eventType.name,
+                        style = MaterialTheme.typography.caption.bold(),
+                        color = Color.White,
+                        modifier = Modifier
+                            .optional(selected) {
+                                border(
+                                    width = 2.dp,
+                                    color = Color.White,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                            }
+                            .padding(4.dp)
+                            .background(
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color(eventType.color)
+                            )
+                            .clickable { viewModel.onEventTypeChange(eventType) }
+                            .padding(4.dp)
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.weight(1f))
             DeleteButton(
                 canDelete = canDelete,
@@ -224,7 +294,7 @@ private fun DeleteButton(
 }
 
 @Composable
-fun EventHeader(
+private fun EventHeader(
     eventName: String,
     onNameChange: (String) -> Unit,
     modifier: Modifier = Modifier
