@@ -124,6 +124,8 @@ dependencies {
     // The compose calendar library
     implementation "com.kizitonwose.calendar:compose:$compose_calendar"
 
+    implementation "com.marosseleng.android:compose-material3-datetime-pickers:$compose_datetime_version"
+
 //    // Voyager Navigation
 //    implementation "cafe.adriel.voyager:voyager-navigator:$voyager_version"
 //    implementation "cafe.adriel.voyager:voyager-bottom-sheet-navigator:$voyager_version"
