@@ -30,6 +30,7 @@ import int20h.troipsa.pseudocalendar.ui.base.ui.PseudoScaffold
 import int20h.troipsa.pseudocalendar.ui.theme.*
 import int20h.troipsa.pseudocalendar.utils.compose.AdditionalRippleTheme
 import int20h.troipsa.pseudocalendar.utils.compose.StatusBarColorUpdateEffect
+import int20h.troipsa.pseudocalendar.utils.compose.extension.medium
 import int20h.troipsa.pseudocalendar.utils.displayText
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -63,6 +64,7 @@ fun CalendarScreen(
     ) {
         val viewModel = hiltViewModel<CalendarViewModel>()
         val eventsMap by viewModel.eventsMap.collectAsState()
+        val eventTypes by viewModel.eventTypes.collectAsState()
 
         CalendarScreen(
             eventsMap = eventsMap,
@@ -71,6 +73,7 @@ fun CalendarScreen(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CalendarScreen(
     eventsMap: Map<LocalDate, List<Event>>, navigateToDaySchedule: (Long) -> Unit
@@ -81,97 +84,127 @@ fun CalendarScreen(
     var selection by remember { mutableStateOf<CalendarDay?>(null) }
     val daysOfWeek = remember { daysOfWeek() }
 
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+
     StatusBarColorUpdateEffect(toolbarColor)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(pageBackgroundColor),
+    ModalBottomSheetLayout(
+        sheetContent = {
+            FiltersContent(
+                eventTypes = emptyList(),
+                selectedEventTypes = emptyList(),
+                onEventTypeClick = {_, _ ->},
+                onApplyFilters = {},
+            )
+        },
+        sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+        sheetBackgroundColor = pageBackgroundColor,
+        sheetState = sheetState,
     ) {
-        val state = rememberCalendarState(
-            startMonth = startMonth,
-            endMonth = endMonth,
-            firstVisibleMonth = currentMonth,
-            firstDayOfWeek = daysOfWeek.first(),
-            outDateStyle = OutDateStyle.EndOfGrid,
-        )
-        val coroutineScope = rememberCoroutineScope()
-        val visibleMonth = rememberFirstCompletelyVisibleMonth(state)
-
-        LaunchedEffect(visibleMonth) {
-            // Clear selection if we scroll to a new month.
-            selection = null
-        }
-
-        // Draw light content on dark background.
-        CompositionLocalProvider(LocalContentColor provides darkColors().onSurface) {
-            SimpleCalendarTitle(
-                currentMonth = visibleMonth.yearMonth,
-                goToPrevious = {
-                    coroutineScope.launch {
-                        state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.previousMonth)
-                    }
-                },
-                goToNext = {
-                    coroutineScope.launch {
-                        state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth)
-                    }
-                },
-                modifier = Modifier
-                    .background(toolbarColor)
-                    .padding(horizontal = 8.dp, vertical = 12.dp),
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(pageBackgroundColor),
+        ) {
+            val state = rememberCalendarState(
+                startMonth = startMonth,
+                endMonth = endMonth,
+                firstVisibleMonth = currentMonth,
+                firstDayOfWeek = daysOfWeek.first(),
+                outDateStyle = OutDateStyle.EndOfGrid,
             )
+            val coroutineScope = rememberCoroutineScope()
+            val visibleMonth = rememberFirstCompletelyVisibleMonth(state)
 
-            HorizontalCalendar(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(bottom = 16.dp),
-                state = state,
-                contentHeightMode = ContentHeightMode.Fill,
-                dayContent = { day ->
-                    CompositionLocalProvider(LocalRippleTheme provides AdditionalRippleTheme) {
-                        val isSelected = selection == day
-                        val eventsInDay =if (day.position == DayPosition.MonthDate) {
-                            eventsMap[day.date].orEmpty()
-                        } else {
-                            emptyList()
+            LaunchedEffect(visibleMonth) {
+                // Clear selection if we scroll to a new month.
+                selection = null
+            }
+
+            // Draw light content on dark background.
+            CompositionLocalProvider(LocalContentColor provides darkColors().onSurface) {
+                SimpleCalendarTitle(
+                    currentMonth = visibleMonth.yearMonth,
+                    goToPrevious = {
+                        coroutineScope.launch {
+                            state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.previousMonth)
                         }
+                    },
+                    goToNext = {
+                        coroutineScope.launch {
+                            state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth)
+                        }
+                    },
+                    modifier = Modifier
+                        .background(toolbarColor)
+                        .padding(horizontal = 8.dp, vertical = 12.dp),
+                )
 
-                        Day(
-                            day = day,
-                            eventsInDay = eventsInDay,
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .border(
-                                    width = if (isSelected) 1.dp else 0.dp,
-                                    color = if (isSelected) selectedItemColor else Color.Transparent,
-                                )
-                                .padding(1.dp)
-                                .background(color = itemBackgroundColor)
-                                .clickable(
-                                    enabled = day.position == DayPosition.MonthDate,
-                                    onClick = {
-                                        selection = day
-                                        if (eventsInDay.isNotEmpty()) {
-                                            navigateToDaySchedule(day.date.toEpochDay())
-                                        }
-                                    },
-                                )
-                                .fillMaxWidth()
-                                .padding(bottom = 4.dp)
+                HorizontalCalendar(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(bottom = 16.dp),
+                    state = state,
+                    contentHeightMode = ContentHeightMode.Fill,
+                    dayContent = { day ->
+                        CompositionLocalProvider(LocalRippleTheme provides AdditionalRippleTheme) {
+                            val isSelected = selection == day
+                            val eventsInDay =if (day.position == DayPosition.MonthDate) {
+                                eventsMap[day.date].orEmpty()
+                            } else {
+                                emptyList()
+                            }
+
+                            Day(
+                                day = day,
+                                eventsInDay = eventsInDay,
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .border(
+                                        width = if (isSelected) 1.dp else 0.dp,
+                                        color = if (isSelected) selectedItemColor else Color.Transparent,
+                                    )
+                                    .padding(1.dp)
+                                    .background(color = itemBackgroundColor)
+                                    .clickable(
+                                        enabled = day.position == DayPosition.MonthDate,
+                                        onClick = {
+                                            selection = day
+                                            if (eventsInDay.isNotEmpty()) {
+                                                navigateToDaySchedule(day.date.toEpochDay())
+                                            }
+                                        },
+                                    )
+                                    .fillMaxWidth()
+                                    .padding(bottom = 4.dp)
+                            )
+                        }
+                    },
+                    monthHeader = {
+                        MonthHeader(
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            daysOfWeek = daysOfWeek,
                         )
-                    }
-                },
-                monthHeader = {
-                    MonthHeader(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        daysOfWeek = daysOfWeek,
+                    },
+                )
+                Divider(color = pageBackgroundColor)
+
+                Button(
+                    onClick = {},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Text(
+                        text = "Show Filters".uppercase(Locale.getDefault()),
+                        style = MaterialTheme.typography.button.medium(),
+                        color = Color.White,
                     )
-                },
-            )
-            Divider(color = pageBackgroundColor)
+                }
+            }
         }
     }
+
 }
 
 @Composable

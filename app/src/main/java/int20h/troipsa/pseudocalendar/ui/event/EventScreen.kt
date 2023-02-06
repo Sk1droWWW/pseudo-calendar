@@ -226,13 +226,12 @@ fun EventScreen(
                     .fillMaxWidth()
             ) {
                 eventTypes.forEach { eventType ->
-                    val selected = event.eventType == eventType
                     Text(
                         text = eventType.name,
                         style = MaterialTheme.typography.caption.bold(),
                         color = Color.White,
                         modifier = Modifier
-                            .optional(selected) {
+                            .optional(event.eventType == eventType) {
                                 border(
                                     width = 2.dp,
                                     color = Color.White,
