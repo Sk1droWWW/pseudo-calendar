@@ -35,6 +35,8 @@ class EventViewModel @Inject constructor(
 
     val canSave = _event.combine(_updatedEvent) { event, updatedEvent ->
         event != updatedEvent
+                && updatedEvent.name.isNotEmpty()
+                && updatedEvent.eventType.id != 0
     }.stateIn(scope, SharingStarted.Eagerly, false)
 
     val canDelete = _event.map {
@@ -55,9 +57,14 @@ class EventViewModel @Inject constructor(
 
     fun initScreenInfo(eventId: Int) {
         runCoroutine {
-            getEventInteractor(eventId).launchAndCollect(this) { event ->
-                _event.value = event
-                _updatedEvent.value = event
+            if (eventId == 0) {
+                _event.value = defaultEvent
+                _updatedEvent.value = defaultEvent
+            } else {
+                getEventInteractor(eventId).launchAndCollect(this) { event ->
+                    _event.value = event
+                    _updatedEvent.value = event
+                }
             }
             getEventTypes().launchAndCollect(this) { eventTypes ->
                 _eventTypes.value = eventTypes

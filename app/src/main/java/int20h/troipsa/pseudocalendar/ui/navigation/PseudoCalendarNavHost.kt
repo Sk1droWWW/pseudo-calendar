@@ -80,6 +80,9 @@ fun PseudoCalendarNavHost(
                     navController = navController,
                     navigateToDaySchedule = { day ->
                         navController.navigate(Screen.DaySchedule.withArgs(day.toString()))
+                    },
+                    navigateToEventScreen = { id ->
+                        navController.navigate(Screen.Event.withArgs(id.toString()))
                     }
                 )
             }

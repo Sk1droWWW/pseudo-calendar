@@ -6,10 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.Text
-import androidx.compose.material.darkColors
+import androidx.compose.material.*
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,14 +35,31 @@ import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
+import java.util.*
 
 @Composable
 fun CalendarScreen(
     navController: NavHostController,
-    navigateToDaySchedule: (Long) -> Unit
+    navigateToDaySchedule: (Long) -> Unit,
+    navigateToEventScreen: (Long) -> Unit,
 ) {
     PseudoScaffold(
-        modifier = Modifier.systemBarsPadding()
+        modifier = Modifier.systemBarsPadding(),
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { navigateToEventScreen(0) },
+                backgroundColor = MaterialTheme.colors.secondary,
+                contentColor = Color.White,
+                content = {
+                    Text(
+                        text = "+",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            )
+        },
     ) {
         val viewModel = hiltViewModel<CalendarViewModel>()
         val eventsMap by viewModel.eventsMap.collectAsState()
@@ -252,7 +266,7 @@ private fun EventItem(
             ),
     ) {
         Text(
-            text = event.name,
+            text = event.name.lowercase(Locale.getDefault()),
             color = Color.White,
             fontSize = 9.sp,
             maxLines = 1,
