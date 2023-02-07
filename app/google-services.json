@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "202963268567",
+    "project_id": "psevdocalendar",
+    "storage_bucket": "psevdocalendar.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:202963268567:android:3582ad7abbd21112aa9192",
+        "android_client_info": {
+          "package_name": "int20h.troipsa.pseudocalendar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "202963268567-u9792rfel08kmqdml4vhq2cbprtu00s1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACMrQXw9-RQlYysLRcQNV-MjIvALQ-Pq0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "202963268567-u9792rfel08kmqdml4vhq2cbprtu00s1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
