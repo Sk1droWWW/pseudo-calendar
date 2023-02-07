@@ -34,8 +34,17 @@ buildscript {
 
     dependencies {
 //        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+        classpath 'com.google.gms:google-services:4.3.15'
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
         classpath "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:$ksp_version"
+    }
+
+    repositories {
+        // Make sure that you have the following two repositories
+        google()  // Google's Maven repository
+
+        mavenCentral()  // Maven Central repository
+
     }
 }
 
