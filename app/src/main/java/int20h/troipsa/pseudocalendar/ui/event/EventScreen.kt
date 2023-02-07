@@ -15,6 +15,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -25,9 +26,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.flowlayout.FlowRow
 import com.marosseleng.compose.material3.datetimepickers.date.ui.dialog.DatePickerDialog
 import com.marosseleng.compose.material3.datetimepickers.time.ui.dialog.TimePickerDialog
+import droidninja.filepicker.FilePickerBuilder
 import int20h.troipsa.pseudocalendar.R
 import int20h.troipsa.pseudocalendar.ui.base.ui.PseudoScaffold
 import int20h.troipsa.pseudocalendar.ui.base.ui.defaultTopBarProvider
+import int20h.troipsa.pseudocalendar.ui.main.MainViewModel
 import int20h.troipsa.pseudocalendar.ui.theme.itemBackgroundColor
 import int20h.troipsa.pseudocalendar.ui.theme.pageBackgroundColor
 import int20h.troipsa.pseudocalendar.ui.theme.toolbarColor
@@ -37,6 +40,7 @@ import int20h.troipsa.pseudocalendar.utils.compose.extension.medium
 import int20h.troipsa.pseudocalendar.utils.compose.extension.optional
 import int20h.troipsa.pseudocalendar.utils.coroutines.launchAndCollect
 import int20h.troipsa.pseudocalendar.utils.displayText
+import int20h.troipsa.pseudocalendar.utils.extension.findActivity
 import int20h.troipsa.pseudocalendar.utils.extension.formatToDaySchedule
 import int20h.troipsa.pseudocalendar.utils.extension.formatToEventTime
 import java.util.*
@@ -48,26 +52,38 @@ fun EventScreen(
     popBackStack: () -> Unit,
     navigateToEventType: (String) -> Unit = {},
 ) {
+
+    val context = LocalContext.current
+    val viewModel = hiltViewModel<EventViewModel>()
+    val activityViewModel = hiltViewModel<MainViewModel>()
+
+    val canSaveEvent by viewModel.canSave.collectAsState()
+    val canSaveActivity by activityViewModel.canSave.collectAsState()
+
     BackHandler(
         enabled = true,
-        onBack = popBackStack
+        onBack = {
+            if (canSaveActivity) activityViewModel.clearFiles()
+            popBackStack()
+        }
     )
-
-    val viewModel = hiltViewModel<EventViewModel>()
-    val canSave by viewModel.canSave.collectAsState()
 
     PseudoScaffold(
         modifier = Modifier.systemBarsPadding(),
         topBar = defaultTopBarProvider(
             closeIcon = painterResource(id = R.drawable.ic_back_arrow),
-            closeAction = popBackStack,
+            closeAction = {
+                if (canSaveActivity) activityViewModel.clearFiles()
+                popBackStack()
+            },
             actionButton = {
-                if (canSave) {
+                if (canSaveEvent || canSaveActivity) {
                     Text(
                         text = stringResource(id = R.string.event_action_save),
                         color = MaterialTheme.colors.onPrimary,
                         style = MaterialTheme.typography.button,
-                        modifier = Modifier.clickable(onClick = viewModel::saveEvent)
+                        modifier = Modifier
+                            .clickable(onClick = viewModel::saveEvent)
                     )
                 }
             }
@@ -86,9 +102,12 @@ fun EventScreen(
         val allContacts by viewModel.allContacts.collectAsState()
         val eventContacts by viewModel.changedEventContacts.collectAsState()
 
+        val attachedFiles by activityViewModel.attachedEventFiles.collectAsState()
+
         LaunchedEffect(eventId) {
             if (eventId != null) {
                 viewModel.initScreenInfo(eventId)
+                activityViewModel.setEventId(eventId)
             }
         }
 
@@ -356,12 +375,41 @@ fun EventScreen(
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(
-                    onClick = {  },
+                    onClick = {
+                        FilePickerBuilder.instance
+                            .setMaxCount(5) //optional
+                            .pickPhoto(context.findActivity())
+                    },
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_add),
                         contentDescription = null,
                         tint = MaterialTheme.colors.onPrimary
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+                    .background(toolbarColor),
+            ) {
+                attachedFiles.forEach { contact ->
+                    Text(
+                        text = contact.name,
+                        style = MaterialTheme.typography.body2.medium(),
+                        color = Color.White,
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .background(
+                                color = pageBackgroundColor,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .clip(RoundedCornerShape(8.dp))
+                            .fillMaxWidth()
                     )
                 }
             }

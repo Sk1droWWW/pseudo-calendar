@@ -131,13 +131,8 @@ dependencies {
 
     implementation "com.marosseleng.android:compose-material3-datetime-pickers:$compose_datetime_version"
 
-//    // Voyager Navigation
-//    implementation "cafe.adriel.voyager:voyager-navigator:$voyager_version"
-//    implementation "cafe.adriel.voyager:voyager-bottom-sheet-navigator:$voyager_version"
-//    implementation "cafe.adriel.voyager:voyager-transitions:$voyager_version"
-//    implementation "cafe.adriel.voyager:voyager-androidx:$voyager_version"
-//    implementation "cafe.adriel.voyager:voyager-hilt:$voyager_version"
-
+    implementation "com.droidninja:filepicker:$file_picker_version"
+    implementation 'com.google.android.material:material:1.8.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

@@ -32,6 +32,30 @@ class DataRepository @Inject constructor(
         mainDatabase.eventsContactsDao().insertOrReplace(eventContact)
     }
 
+    fun getEventFiles(eventId: Int): Flow<EventWithFiles> {
+        return mainDatabase.eventsDao().getEventWithFiles(eventId)
+    }
+
+    suspend fun addEventFile(eventFile: EventFilesCrossRef) {
+        mainDatabase.eventsFilesDao().insertOrReplace(eventFile)
+    }
+
+    suspend fun deleteEventFiles(eventId: Int) {
+        mainDatabase.eventsFilesDao().deleteEventFiles(eventId)
+    }
+
+    suspend fun addFile(file: FileEntity) {
+        mainDatabase.filesDao().insertOrReplace(file)
+    }
+
+    suspend fun deleteFileByName(fileName: String) {
+        mainDatabase.filesDao().deleteFileByName(fileName)
+    }
+
+    suspend fun getFileByName(fileName: String): FileEntity {
+        return mainDatabase.filesDao().getFileByName(fileName)
+    }
+
     fun getEvents(): Flow<List<EventWithTypeProjection>> {
         return mainDatabase.eventsDao().getEvents()
     }

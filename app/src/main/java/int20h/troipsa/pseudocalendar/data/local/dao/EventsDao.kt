@@ -29,7 +29,17 @@ abstract class EventsDao : BaseDao<EventEntity>() {
     @Query("SELECT * FROM events WHERE event_id=:eventId")
     abstract fun getEventWithContacts(eventId: Int): Flow<EventWithContacts>
 
+    @Transaction
+    @Query("SELECT * FROM events WHERE event_id=:eventId")
+    abstract fun getEventWithFiles(eventId: Int): Flow<EventWithFiles>
+
 }
 
 @Dao
 abstract class EventsContactsDao : BaseDao<EventContactCrossRef>()
+
+@Dao
+abstract class EventsFilesDao : BaseDao<EventFilesCrossRef>() {
+    @Query("DELETE FROM event_files WHERE event_id=:eventId")
+    abstract suspend fun deleteEventFiles(eventId: Int)
+}

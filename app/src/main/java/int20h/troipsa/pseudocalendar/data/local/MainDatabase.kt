@@ -14,6 +14,7 @@ import int20h.troipsa.pseudocalendar.data.local.utils.LocalDateTimeConverter
         EventTypeEntity::class,
         ContactEntity::class,
         EventContactCrossRef::class,
+        EventFilesCrossRef::class,
     ],
     version = 1,
     exportSchema = true
@@ -31,6 +32,8 @@ abstract class MainDatabase : RoomDatabase() {
     abstract fun contactsDao(): ContactsDao
 
     abstract fun eventsContactsDao(): EventsContactsDao
+    abstract fun eventsFilesDao(): EventsFilesDao
+    abstract fun filesDao(): FilesDao
 
     companion object {
         private const val DATABASE_NAME = "pseudo_calendar_db"

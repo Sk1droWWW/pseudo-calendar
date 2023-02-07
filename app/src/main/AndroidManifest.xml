@@ -3,7 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <application
+        android:requestLegacyExternalStorage="true"
         android:name=".PseudoApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
