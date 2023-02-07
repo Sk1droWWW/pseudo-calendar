@@ -11,4 +11,12 @@ class AddEventTypeInteractor @Inject constructor(
     suspend operator fun invoke(eventType: EventType) {
         dataRepository.addEventType(EventMapper.mapToEntity(eventType))
     }
+
+    suspend operator fun invoke(eventTypeList: List<EventType>) {
+        eventTypeList.forEach { eventType ->
+            dataRepository.addEventType(
+                EventMapper.mapToEntity(eventType)
+            )
+        }
+    }
 }

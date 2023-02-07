@@ -165,6 +165,7 @@ class EventViewModel @Inject constructor(
                 id = 0,
                 name = "Event Type 0",
                 color = 0xFF3700B3,
+                visible = true
             ),
         )
     }

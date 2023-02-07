@@ -1,5 +1,6 @@
 package int20h.troipsa.pseudocalendar.ui.calendar
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,6 +27,7 @@ import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.*
 import int20h.troipsa.pseudocalendar.domain.models.Event
+import int20h.troipsa.pseudocalendar.domain.models.EventType
 import int20h.troipsa.pseudocalendar.ui.base.ui.PseudoScaffold
 import int20h.troipsa.pseudocalendar.ui.theme.*
 import int20h.troipsa.pseudocalendar.utils.compose.AdditionalRippleTheme
@@ -44,31 +46,41 @@ fun CalendarScreen(
     navigateToDaySchedule: (Long) -> Unit,
     navigateToEventScreen: (Long) -> Unit,
 ) {
+    var floatingPointVisible by remember { mutableStateOf(true) }
+    val showFloatingPoint: (Boolean) -> Unit = { floatingPointVisible = it }
+
     PseudoScaffold(
         modifier = Modifier.systemBarsPadding(),
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navigateToEventScreen(0) },
-                backgroundColor = MaterialTheme.colors.secondary,
-                contentColor = Color.White,
-                content = {
-                    Text(
-                        text = "+",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-            )
+            AnimatedVisibility(visible = floatingPointVisible) {
+                FloatingActionButton(
+                    onClick = { navigateToEventScreen(0) },
+                    backgroundColor = MaterialTheme.colors.secondary,
+                    contentColor = Color.White,
+                    content = {
+                        Text(
+                            text = "+",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                )
+            }
         },
     ) {
         val viewModel = hiltViewModel<CalendarViewModel>()
         val eventsMap by viewModel.eventsMap.collectAsState()
-        val eventTypes by viewModel.eventTypes.collectAsState()
+        val eventTypes by viewModel.changedEventTypes.collectAsState()
 
         CalendarScreen(
             eventsMap = eventsMap,
+            eventTypes = eventTypes,
+            showFloatingPoint = showFloatingPoint,
             navigateToDaySchedule = navigateToDaySchedule,
+            resetEventTypes = viewModel::resetEventTypes,
+            onEventTypeClick = viewModel::onEventTypeClick,
+            onApplyFilters = viewModel::onApplyFiltersClick,
         )
     }
 }
@@ -76,7 +88,13 @@ fun CalendarScreen(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CalendarScreen(
-    eventsMap: Map<LocalDate, List<Event>>, navigateToDaySchedule: (Long) -> Unit
+    eventsMap: Map<LocalDate, List<Event>>,
+    eventTypes: List<EventType>,
+    showFloatingPoint: (Boolean) -> Unit,
+    onEventTypeClick: (EventType) -> Unit,
+    resetEventTypes: () -> Unit,
+    onApplyFilters: () -> Unit,
+    navigateToDaySchedule: (Long) -> Unit
 ) {
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(500) }
@@ -85,16 +103,23 @@ fun CalendarScreen(
     val daysOfWeek = remember { daysOfWeek() }
 
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(sheetState.isVisible) {
+        showFloatingPoint(!sheetState.isVisible)
+    }
 
     StatusBarColorUpdateEffect(toolbarColor)
 
     ModalBottomSheetLayout(
         sheetContent = {
             FiltersContent(
-                eventTypes = emptyList(),
-                selectedEventTypes = emptyList(),
-                onEventTypeClick = {_, _ ->},
-                onApplyFilters = {},
+                eventTypes = eventTypes,
+                onEventTypeClick = onEventTypeClick,
+                onApplyFilters = {
+                    onApplyFilters()
+                    coroutineScope.launch { sheetState.hide() }
+                }
             )
         },
         sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
@@ -113,7 +138,6 @@ fun CalendarScreen(
                 firstDayOfWeek = daysOfWeek.first(),
                 outDateStyle = OutDateStyle.EndOfGrid,
             )
-            val coroutineScope = rememberCoroutineScope()
             val visibleMonth = rememberFirstCompletelyVisibleMonth(state)
 
             LaunchedEffect(visibleMonth) {
@@ -141,16 +165,15 @@ fun CalendarScreen(
                 )
 
                 HorizontalCalendar(
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .padding(bottom = 16.dp),
+                    modifier = Modifier.weight(1f),
                     state = state,
                     contentHeightMode = ContentHeightMode.Fill,
                     dayContent = { day ->
                         CompositionLocalProvider(LocalRippleTheme provides AdditionalRippleTheme) {
                             val isSelected = selection == day
+
                             val eventsInDay =if (day.position == DayPosition.MonthDate) {
-                                eventsMap[day.date].orEmpty()
+                                eventsMap[day.date].orEmpty().filter { it.eventType.visible }
                             } else {
                                 emptyList()
                             }
@@ -187,12 +210,16 @@ fun CalendarScreen(
                         )
                     },
                 )
-                Divider(color = pageBackgroundColor)
-
                 Button(
-                    onClick = {},
+                    onClick = {
+                        coroutineScope.launch {
+                            resetEventTypes()
+                            sheetState.show()
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(end = 90.dp, start = 16.dp)
                         .padding(vertical = 8.dp)
                 ) {
                     Text(
@@ -201,6 +228,7 @@ fun CalendarScreen(
                         color = Color.White,
                     )
                 }
+                Divider(color = pageBackgroundColor)
             }
         }
     }

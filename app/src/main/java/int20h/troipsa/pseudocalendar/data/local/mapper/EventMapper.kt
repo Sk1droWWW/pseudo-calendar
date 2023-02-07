@@ -24,6 +24,7 @@ object EventMapper {
         id = eventTypeEntity.id,
         name = eventTypeEntity.name,
         color = eventTypeEntity.color,
+        visible = eventTypeEntity.visible,
     )
 
     fun mapToEntity(event: Event, eventTypeId: Int) = EventEntity(
@@ -40,6 +41,7 @@ object EventMapper {
         id = eventType.id,
         name = eventType.name,
         color = eventType.color,
+        visible = eventType.visible,
     )
 
 }

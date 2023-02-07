@@ -25,7 +25,8 @@ data class Event(
                     1 -> 0xFF03DAC5
                     2 -> 0xFFFFC107
                     else -> 0xFF000000
-                }
+                },
+                visible = true,
             )
         }
 

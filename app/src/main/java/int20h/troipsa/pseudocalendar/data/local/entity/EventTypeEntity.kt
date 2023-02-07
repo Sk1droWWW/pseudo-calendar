@@ -13,4 +13,6 @@ data class EventTypeEntity(
     val name: String,
     @ColumnInfo(name = "color")
     val color: Long,
+    @ColumnInfo(name = "visible")
+    val visible: Boolean,
 )
