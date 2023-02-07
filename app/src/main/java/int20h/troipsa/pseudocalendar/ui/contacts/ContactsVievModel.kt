@@ -1,77 +1,55 @@
 package int20h.troipsa.pseudocalendar.ui.contacts
 
-import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.ContentResolver
 import android.content.Context
-import android.content.ContextWrapper
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.database.Cursor
 import android.net.Uri
 import android.provider.ContactsContract
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.ActivityCompat
-import androidx.core.app.ComponentActivity
-import androidx.core.content.ContextCompat
+import dagger.hilt.android.lifecycle.HiltViewModel
+import int20h.troipsa.pseudocalendar.domain.interactors.AddContactInteractor
+import int20h.troipsa.pseudocalendar.domain.interactors.GetContactListInteractor
 import int20h.troipsa.pseudocalendar.domain.models.Contact
 import int20h.troipsa.pseudocalendar.ui.base.view_model.BaseViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
 
-class ContactsVievModel : BaseViewModel() {
+@HiltViewModel
+class ContactsVievModel @Inject constructor(
+    private val addContactInteractor: AddContactInteractor,
+    private val getContactListInteractor: GetContactListInteractor,
+) : BaseViewModel() {
 
-    private val _contactList = MutableStateFlow(emptyList<Contact>())
-    val contactList = _contactList.asStateFlow()
+    val contactList = getContactListInteractor()
+        .stateIn(scope, SharingStarted.Eagerly, emptyList())
 
-    fun addContact(contact: Contact) {
-        _contactList.value = _contactList.value.plusElement(contact)
-    }
+    fun addContact(uri: Uri?, context: Context) {
+        runCoroutine(
+            withProgress = true,
+        ) {
+            if (uri != null) {
+                val cursor = context.contentResolver.query(
+                    uri,
+                    null,
+                    null,
+                    null,
+                    null
+                ) ?: return@runCoroutine
 
-    fun hasContactPermission(context: Context): Boolean {
-        return ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_CONTACTS) ==
-                PackageManager.PERMISSION_GRANTED;
-    }
+                if (cursor.moveToFirst()) {
+                    val columnIdIndex = cursor.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID)
+                    val columnNameIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
+                    val columnNumberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
 
-    fun requestContactPermission(context: Context, activity: Activity) {
-        if (!hasContactPermission(context)) {
-            ActivityCompat.requestPermissions(activity, arrayOf(android.Manifest.permission.READ_CONTACTS), 1)
-        }
-    }
+                    if (columnNameIndex != -1 && columnNumberIndex != -1 && columnIdIndex != -1) {
+                        val id = cursor.getString(columnIdIndex).toInt()
+                        val name = cursor.getString(columnNameIndex)
+                        val number = cursor.getString(columnNumberIndex)
 
-    fun Context.findActivity(): Activity {
-        var context = this
-        while (context is ContextWrapper) {
-            if (context is Activity) return context
-            context = context.baseContext
-        }
-        throw IllegalStateException("no activity")
-    }
-
-    fun getContactList(
-        context: Context
-    ) {
-        _contactList.value = getNamePhoneDetails(context)!!
-    }
-
-    @SuppressLint("Range")
-    fun getNamePhoneDetails(
-        context: Context
-    ): MutableList<Contact>? {
-        val names = mutableListOf<Contact>()
-        val cr = context.contentResolver
-        val cur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-            null, null, null)
-        if (cur!!.count > 0) {
-            while (cur.moveToNext()) {
-                val id = cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NAME_RAW_CONTACT_ID)).toInt()
-                val name = cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-                val number = cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                names.add(Contact(id , name , number))
+                        addContactInteractor(Contact(id, name, number))
+                    }
+                    cursor.close()
+                }
             }
         }
-        return names
     }
 }

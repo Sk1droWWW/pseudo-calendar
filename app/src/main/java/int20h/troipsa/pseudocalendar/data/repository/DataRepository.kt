@@ -1,10 +1,7 @@
 package int20h.troipsa.pseudocalendar.data.repository
 
 import int20h.troipsa.pseudocalendar.data.local.MainDatabase
-import int20h.troipsa.pseudocalendar.data.local.entity.EventEntity
-import int20h.troipsa.pseudocalendar.data.local.entity.EventTypeEntity
-import int20h.troipsa.pseudocalendar.data.local.entity.EventWithTypeProjection
-import int20h.troipsa.pseudocalendar.data.local.entity.UserEntity
+import int20h.troipsa.pseudocalendar.data.local.entity.*
 import int20h.troipsa.pseudocalendar.data.local.mapper.UserEntityMapper
 import int20h.troipsa.pseudocalendar.data.network.ApiService
 import int20h.troipsa.pseudocalendar.data.network.models.UserApiModel
@@ -53,6 +50,14 @@ class DataRepository @Inject constructor(
 
     suspend fun deleteEvent(eventId: Int) {
         mainDatabase.eventsDao().deleteEvent(eventId)
+    }
+
+    suspend fun addContact(contact: ContactEntity) {
+        mainDatabase.contactsDao().insertOrReplace(contact)
+    }
+
+    fun getContacts(): Flow<List<ContactEntity>> {
+        return mainDatabase.contactsDao().getContacts()
     }
 
     fun getCurrentUserFlow(): Flow<UserEntity?> {

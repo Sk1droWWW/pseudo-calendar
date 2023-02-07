@@ -1,38 +1,31 @@
 package int20h.troipsa.pseudocalendar.ui.contacts
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.provider.ContactsContract
-import android.provider.ContactsContract.Contacts
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
-import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.LocalRippleTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import int20h.troipsa.pseudocalendar.R
 import int20h.troipsa.pseudocalendar.domain.models.Contact
-import int20h.troipsa.pseudocalendar.domain.models.Event
 import int20h.troipsa.pseudocalendar.ui.base.ui.PseudoScaffold
 import int20h.troipsa.pseudocalendar.ui.base.ui.homeTopBarProvider
 import int20h.troipsa.pseudocalendar.ui.navigation.Screen
@@ -40,45 +33,42 @@ import int20h.troipsa.pseudocalendar.ui.theme.itemBackgroundColor
 import int20h.troipsa.pseudocalendar.ui.theme.pageBackgroundColor
 import int20h.troipsa.pseudocalendar.utils.compose.AdditionalRippleTheme
 import int20h.troipsa.pseudocalendar.utils.compose.extension.medium
-import int20h.troipsa.pseudocalendar.utils.extension.formatToEventTime
+import int20h.troipsa.pseudocalendar.utils.extension.hasContactPermission
+import int20h.troipsa.pseudocalendar.utils.extension.requestContactPermission
 
 @Composable
 fun ContactsScreen(
     navController: NavHostController,
-    context: Context = LocalContext.current
-    ) {
+) {
     PseudoScaffold(
         topBar = homeTopBarProvider(
             title = stringResource(Screen.Contacts.resourceId),
         )
     ) {
+        val context = LocalContext.current
+
         val viewModel = hiltViewModel<ContactsVievModel>()
         val contactsList by viewModel.contactList.collectAsState()
-        val activity = LocalContext.current as Activity
+
+        val launcher =
+            rememberLauncherForActivityResult(ActivityResultContracts.PickContact()) { uri ->
+                viewModel.addContact(uri, context)
+            }
 
         Column {
             Button(
-                // on below line adding on click for button.
                 onClick = {
-                    // on below line checking if permission is granted.
-                    if (viewModel.hasContactPermission(context)) {
-                        // if permission granted open intent to pick contact/
-                        val intent = Intent(Intent.ACTION_GET_CONTENT)
-                        intent.type = ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE
-                        startActivityForResult(activity, intent, 1, null)
+                    if (context.hasContactPermission()) {
+                        launcher.launch(null)
                     } else {
-                        // if permission not granted requesting permission .
-                        viewModel.requestContactPermission(context, activity)
+                        context.requestContactPermission()
                     }
                 },
-                // adding padding to button.
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
             ) {
-                // displaying text in our button.
                 Text(text = "Pick Contact")
-
             }
 
             Text(text = stringResource(Screen.Contacts.resourceId))
@@ -94,10 +84,7 @@ fun ContactsScreen(
                     .padding(16.dp)
                     .fillMaxSize()
             )
-
-
         }
-
     }
 }
 
@@ -140,7 +127,6 @@ private fun ContactItem(
                     .width(8.dp)
                     .fillMaxHeight()
             )
-
             Column(
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 8.dp)
@@ -161,7 +147,7 @@ private fun ContactItem(
                         .fillMaxWidth()
                 ) {
                     Text(
-                        text = "Phone ${contact.phoneNumber}",
+                        text = "Phone ${contact.phone}",
                         style = MaterialTheme.typography.body2,
                         color = Color.White.copy(alpha = 0.6f),
                         textAlign = TextAlign.Start

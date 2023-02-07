@@ -3,9 +3,11 @@ package int20h.troipsa.pseudocalendar.data.local
 import android.content.Context
 import androidx.room.*
 import androidx.room.migration.Migration
+import int20h.troipsa.pseudocalendar.data.local.dao.ContactsDao
 import int20h.troipsa.pseudocalendar.data.local.dao.EventsDao
 import int20h.troipsa.pseudocalendar.data.local.dao.EventsTypeDao
 import int20h.troipsa.pseudocalendar.data.local.dao.UserDao
+import int20h.troipsa.pseudocalendar.data.local.entity.ContactEntity
 import int20h.troipsa.pseudocalendar.data.local.entity.EventEntity
 import int20h.troipsa.pseudocalendar.data.local.entity.EventTypeEntity
 import int20h.troipsa.pseudocalendar.data.local.entity.UserEntity
@@ -16,6 +18,7 @@ import int20h.troipsa.pseudocalendar.data.local.utils.LocalDateTimeConverter
         UserEntity::class,
         EventEntity::class,
         EventTypeEntity::class,
+        ContactEntity::class,
     ],
     version = 1,
     exportSchema = true
@@ -29,6 +32,8 @@ abstract class MainDatabase : RoomDatabase() {
 
     abstract fun eventsDao(): EventsDao
     abstract fun eventsTypeDao(): EventsTypeDao
+
+    abstract fun contactsDao(): ContactsDao
 
     companion object {
         private const val DATABASE_NAME = "pseudo_calendar_db"

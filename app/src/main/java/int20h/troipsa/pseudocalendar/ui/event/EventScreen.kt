@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -190,6 +191,7 @@ fun EventScreen(
             }
 
             Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .padding(horizontal = 16.dp, vertical = 8.dp)
                     .fillMaxWidth()
@@ -245,6 +247,52 @@ fun EventScreen(
                             )
                             .clickable { viewModel.onEventTypeChange(eventType) }
                             .padding(4.dp)
+                    )
+                }
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "Participants: ",
+                    style = MaterialTheme.typography.body1.medium(),
+                    color = MaterialTheme.colors.onPrimary,
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(
+                    onClick = {  },
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_add),
+                        contentDescription = null,
+                        tint = MaterialTheme.colors.onPrimary
+                    )
+                }
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "Attached files: ",
+                    style = MaterialTheme.typography.body1.medium(),
+                    color = MaterialTheme.colors.onPrimary,
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(
+                    onClick = {  },
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_add),
+                        contentDescription = null,
+                        tint = MaterialTheme.colors.onPrimary
                     )
                 }
             }
