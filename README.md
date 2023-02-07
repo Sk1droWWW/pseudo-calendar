@@ -26,12 +26,12 @@ According to the given task, an application was developed that covers such items
 ### Supported Android Versions
 
 Targets Android Version:
-- Android 12.0 ( TIRAMISU ), (API level 33)
+- Android 13.0 ( TIRAMISU ), (API level 33)
 
 Minimum Android Version:
 - Android 8.0 (Oreo), (API level 26)
 
 ### Instruction
 
-- First path, go to the [link](https://appdistribution.firebase.dev/i/3d09e8f1191dece8) and download the apk file to your smartphone, use... 
+- First path, go to the [link](https://appdistribution.firebase.dev/i/eb9f61b3351b9d48) and download the apk file to your smartphone, use... 
 - The second path, with Android Studio, drag the project out of the [GitHub](https://github.com/Sk1droWWW/pseudo-calendar)
