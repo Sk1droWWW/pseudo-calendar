@@ -35,3 +35,8 @@ Minimum Android Version:
 
 - First path, go to the [link](https://appdistribution.firebase.dev/i/3d09e8f1191dece8) and download the apk file to your smartphone, use... 
 - The second path, with Android Studio, drag the project out of the [GitHub](https://github.com/Sk1droWWW/pseudo-calendar)
+
+### Additional Information
+
+- The application is not yet fully completed, but it is already possible to use it.
+- Not Implemented: file picker for events, but can use application without it in "default" branch and in master branch with this bugged feature
