@@ -8,14 +8,12 @@ object ContactMapper {
         return ContactEntity(
             id = contact.id,
             name = contact.name,
-            phone = contact.phone,
         )
     }
     fun mapToDomain(contactEntity: ContactEntity): Contact {
         return Contact(
             id = contactEntity.id,
             name = contactEntity.name,
-            phone = contactEntity.phone,
         )
     }
 }

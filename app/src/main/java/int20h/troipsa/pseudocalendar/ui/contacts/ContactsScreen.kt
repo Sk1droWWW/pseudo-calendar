@@ -2,6 +2,7 @@ package int20h.troipsa.pseudocalendar.ui.contacts
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -59,7 +60,7 @@ fun ContactsScreen(
             Button(
                 onClick = {
                     if (context.hasContactPermission()) {
-                        launcher.launch(null)
+                        launcher.launch()
                     } else {
                         context.requestContactPermission()
                     }
@@ -140,19 +141,6 @@ private fun ContactItem(
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(top = 4.dp)
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Phone ${contact.phone}",
-                        style = MaterialTheme.typography.body2,
-                        color = Color.White.copy(alpha = 0.6f),
-                        textAlign = TextAlign.Start
-                    )
-                }
             }
         }
     }

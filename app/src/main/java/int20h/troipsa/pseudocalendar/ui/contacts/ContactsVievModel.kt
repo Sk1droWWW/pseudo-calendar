@@ -3,6 +3,7 @@ package int20h.troipsa.pseudocalendar.ui.contacts
 import android.content.Context
 import android.net.Uri
 import android.provider.ContactsContract
+import android.util.Log
 import dagger.hilt.android.lifecycle.HiltViewModel
 import int20h.troipsa.pseudocalendar.domain.interactors.AddContactInteractor
 import int20h.troipsa.pseudocalendar.domain.interactors.GetContactListInteractor
@@ -38,14 +39,14 @@ class ContactsVievModel @Inject constructor(
                 if (cursor.moveToFirst()) {
                     val columnIdIndex = cursor.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID)
                     val columnNameIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
-                    val columnNumberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
 
-                    if (columnNameIndex != -1 && columnNumberIndex != -1 && columnIdIndex != -1) {
+                    if (columnNameIndex != -1 && columnIdIndex != -1) {
                         val id = cursor.getString(columnIdIndex).toInt()
                         val name = cursor.getString(columnNameIndex)
-                        val number = cursor.getString(columnNumberIndex)
 
-                        addContactInteractor(Contact(id, name, number))
+                        Log.i("PSEUDO_APP", "addContact: $id $name")
+
+                        addContactInteractor(Contact(id, name))
                     }
                     cursor.close()
                 }
