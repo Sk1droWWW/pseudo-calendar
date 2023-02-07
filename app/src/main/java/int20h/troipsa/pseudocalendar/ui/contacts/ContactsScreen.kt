@@ -72,7 +72,6 @@ fun ContactsScreen(
                 Text(text = "Pick Contact")
             }
 
-            Text(text = stringResource(Screen.Contacts.resourceId))
 
             ContactsList(
                 contactsList = contactsList,
