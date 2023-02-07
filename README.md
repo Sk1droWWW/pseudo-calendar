@@ -26,7 +26,7 @@ According to the given task, an application was developed that covers such items
 ### Supported Android Versions
 
 Targets Android Version:
-- Android 12.0 ( TIRAMISU ), (API level 33)
+- Android 13.0 ( TIRAMISU ), (API level 33)
 
 Minimum Android Version:
 - Android 8.0 (Oreo), (API level 26)
