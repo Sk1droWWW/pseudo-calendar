@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "0a1963869e6acc6d80402b79ef24d25a",
+    "identityHash": "4d5313acace75fdfa501d1917cd17e30",
     "entities": [
       {
         "tableName": "users",
@@ -144,11 +144,11 @@
       },
       {
         "tableName": "contacts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`contact_id` INTEGER NOT NULL, `name` TEXT NOT NULL, PRIMARY KEY(`contact_id`))",
         "fields": [
           {
             "fieldPath": "id",
-            "columnName": "id",
+            "columnName": "contact_id",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -162,7 +162,34 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "id"
+            "contact_id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "event_contact",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`event_id` INTEGER NOT NULL, `contact_id` INTEGER NOT NULL, PRIMARY KEY(`event_id`, `contact_id`))",
+        "fields": [
+          {
+            "fieldPath": "eventId",
+            "columnName": "event_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contactId",
+            "columnName": "contact_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "event_id",
+            "contact_id"
           ]
         },
         "indices": [],
@@ -172,7 +199,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0a1963869e6acc6d80402b79ef24d25a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4d5313acace75fdfa501d1917cd17e30')"
     ]
   }
 }

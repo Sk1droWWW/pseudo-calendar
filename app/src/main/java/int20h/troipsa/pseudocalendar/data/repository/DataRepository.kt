@@ -24,6 +24,14 @@ class DataRepository @Inject constructor(
         return mainDatabase.eventsDao().getEvent(eventId)
     }
 
+    fun getEventContacts(eventId: Int): Flow<EventWithContacts> {
+        return mainDatabase.eventsDao().getEventWithContacts(eventId)
+    }
+
+    suspend fun addEventContact(eventContact: EventContactCrossRef) {
+        mainDatabase.eventsContactsDao().insertOrReplace(eventContact)
+    }
+
     fun getEvents(): Flow<List<EventWithTypeProjection>> {
         return mainDatabase.eventsDao().getEvents()
     }

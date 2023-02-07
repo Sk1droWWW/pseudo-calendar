@@ -1,10 +1,11 @@
 package int20h.troipsa.pseudocalendar.ui.event
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.ripple.LocalRippleTheme
@@ -12,11 +13,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.flowlayout.FlowRow
 import com.marosseleng.compose.material3.datetimepickers.date.ui.dialog.DatePickerDialog
@@ -76,7 +80,11 @@ fun EventScreen(
 
         val dateDialogVisible by viewModel.dateDialogVisible.collectAsState()
         val timeDialogVisible by viewModel.timeDialogVisible.collectAsState()
+        val contactsDialogVisible by viewModel.contactsDialogVisible.collectAsState()
         val timeFrame by viewModel.timeFrame.collectAsState()
+
+        val allContacts by viewModel.allContacts.collectAsState()
+        val eventContacts by viewModel.changedEventContacts.collectAsState()
 
         LaunchedEffect(eventId) {
             if (eventId != null) {
@@ -109,10 +117,46 @@ fun EventScreen(
                 onTimeChange = viewModel::onTimeChange,
             )
         }
+        if (contactsDialogVisible) {
+            Dialog(
+                onDismissRequest = { viewModel.showContactsDialog(false) }
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(toolbarColor)
+                        .height(height = 400.dp),
+                ) {
+                    items(allContacts) { contact ->
+                        Text(
+                            text = contact.name,
+                            style = MaterialTheme.typography.body2.medium(),
+                            color = Color.White,
+                            textAlign = TextAlign.Start,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp, vertical = 4.dp)
+                                .background(
+                                    color = pageBackgroundColor,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .clip(RoundedCornerShape(8.dp))
+                                .fillMaxWidth()
+                                .clickable {
+                                    viewModel.onContactClick(contact)
+                                    viewModel.showContactsDialog(false)
+                                }
+                        )
+                    }
+                }
+            }
+        }
 
         Column(
             modifier = Modifier
                 .background(color = pageBackgroundColor)
+                .verticalScroll(rememberScrollState())
                 .fillMaxSize()
         ) {
             EventHeader(
@@ -264,12 +308,37 @@ fun EventScreen(
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(
-                    onClick = {  },
+                    onClick = viewModel::showContactsDialog,
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_add),
                         contentDescription = null,
                         tint = MaterialTheme.colors.onPrimary
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+                    .background(toolbarColor),
+            ) {
+                eventContacts.forEach { contact ->
+                    Text(
+                        text = contact.name,
+                        style = MaterialTheme.typography.body2.medium(),
+                        color = Color.White,
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .background(
+                                color = pageBackgroundColor,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .clip(RoundedCornerShape(8.dp))
+                            .fillMaxWidth()
                     )
                 }
             }

@@ -1,10 +1,8 @@
 package int20h.troipsa.pseudocalendar.ui.event
 
 import dagger.hilt.android.lifecycle.HiltViewModel
-import int20h.troipsa.pseudocalendar.domain.interactors.AddEventInteractor
-import int20h.troipsa.pseudocalendar.domain.interactors.DeleteEventInteractor
-import int20h.troipsa.pseudocalendar.domain.interactors.GetEventInteractor
-import int20h.troipsa.pseudocalendar.domain.interactors.GetEventTypesInteractor
+import int20h.troipsa.pseudocalendar.domain.interactors.*
+import int20h.troipsa.pseudocalendar.domain.models.Contact
 import int20h.troipsa.pseudocalendar.domain.models.Event
 import int20h.troipsa.pseudocalendar.domain.models.EventType
 import int20h.troipsa.pseudocalendar.ui.base.view_model.BaseViewModel
@@ -22,6 +20,9 @@ class EventViewModel @Inject constructor(
     private val addEventInteractor: AddEventInteractor,
     private val deleteEventInteractor: DeleteEventInteractor,
     private val getEventTypes: GetEventTypesInteractor,
+    private val getContactListInteractor: GetContactListInteractor,
+    private val getEventContactsInteractor: GetEventContactsInteractor,
+    private val addEventContactsInteractor: AddEventContactsInteractor,
 ) : BaseViewModel() {
 
     private val _event = MutableStateFlow(defaultEvent)
@@ -32,12 +33,6 @@ class EventViewModel @Inject constructor(
 
     private val _updatedEvent = MutableStateFlow(_event.value)
     val updatedEvent = _updatedEvent.asStateFlow()
-
-    val canSave = _event.combine(_updatedEvent) { event, updatedEvent ->
-        event != updatedEvent
-                && updatedEvent.name.isNotEmpty()
-                && updatedEvent.eventType.id != 0
-    }.stateIn(scope, SharingStarted.Eagerly, false)
 
     val canDelete = _event.map {
         it.id != 0
@@ -52,8 +47,30 @@ class EventViewModel @Inject constructor(
     private val _timeDialogVisible = MutableStateFlow(false)
     val timeDialogVisible = _timeDialogVisible.asStateFlow()
 
+    private val _contactsDialogVisible = MutableStateFlow(false)
+    val contactsDialogVisible = _contactsDialogVisible.asStateFlow()
+
     private val _timeFrame = MutableStateFlow(Timeframes.START)
     val timeFrame = _timeFrame.asStateFlow()
+
+    val allContacts = getContactListInteractor()
+        .stateIn(scope, SharingStarted.Eagerly, emptyList())
+
+    private val _eventContacts = MutableStateFlow<List<Contact>>(emptyList())
+
+    private val _changedEventContacts = MutableStateFlow<List<Contact>>(emptyList())
+    val changedEventContacts = _changedEventContacts.asStateFlow()
+
+    val canSave = combine(
+        _event,
+        _updatedEvent,
+        _changedEventContacts
+    ) { event, updatedEvent, contacts ->
+        (event != updatedEvent
+                && updatedEvent.name.isNotEmpty()
+                && updatedEvent.eventType.id != 0)
+                || _eventContacts.value != contacts
+    }.stateIn(scope, SharingStarted.Eagerly, false)
 
     fun initScreenInfo(eventId: Int) {
         runCoroutine {
@@ -65,6 +82,10 @@ class EventViewModel @Inject constructor(
                     _event.value = event
                     _updatedEvent.value = event
                 }
+            }
+            getEventContactsInteractor(eventId).launchAndCollect(this) { contacts ->
+                _changedEventContacts.value = contacts.toMutableList()
+                _eventContacts.value = contacts
             }
             getEventTypes().launchAndCollect(this) { eventTypes ->
                 _eventTypes.value = eventTypes
@@ -78,6 +99,10 @@ class EventViewModel @Inject constructor(
             addEventInteractor(
                 event.copy(epochDay = event.startTime.toLocalDate().toEpochDay())
             )
+            _changedEventContacts.value.forEach { contact ->
+                addEventContactsInteractor(event.id, contact.id)
+            }
+
             closeScreen()
         }
     }
@@ -110,6 +135,14 @@ class EventViewModel @Inject constructor(
         }
 
         _timeDialogVisible.value = show
+    }
+
+    fun showContactsDialog(show: Boolean = true) {
+        _contactsDialogVisible.value = show
+    }
+
+    fun onContactClick(contact: Contact) {
+        _changedEventContacts.value = _changedEventContacts.value + contact
     }
 
     fun onDateChange(date: LocalDate) {
