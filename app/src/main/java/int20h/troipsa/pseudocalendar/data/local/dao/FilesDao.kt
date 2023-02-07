@@ -10,7 +10,7 @@ abstract class FilesDao : BaseDao<FileEntity>() {
     @Query("DELETE FROM files WHERE file_id=:fileId")
     abstract suspend fun deleteFile(fileId: Int)
 
-    @Query("DELETE * FROM files WHERE name=:name")
+    @Query("DELETE FROM files WHERE name=:name")
     abstract suspend fun deleteFileByName(name: String)
 
     @Query("SELECT * FROM files WHERE name=:name")

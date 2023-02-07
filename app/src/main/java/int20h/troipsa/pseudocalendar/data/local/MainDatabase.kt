@@ -15,6 +15,7 @@ import int20h.troipsa.pseudocalendar.data.local.utils.LocalDateTimeConverter
         ContactEntity::class,
         EventContactCrossRef::class,
         EventFilesCrossRef::class,
+        FileEntity::class,
     ],
     version = 1,
     exportSchema = true

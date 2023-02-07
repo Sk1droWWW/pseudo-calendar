@@ -1,8 +1,13 @@
 package int20h.troipsa.pseudocalendar.ui.event
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -26,7 +32,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.flowlayout.FlowRow
 import com.marosseleng.compose.material3.datetimepickers.date.ui.dialog.DatePickerDialog
 import com.marosseleng.compose.material3.datetimepickers.time.ui.dialog.TimePickerDialog
-import droidninja.filepicker.FilePickerBuilder
 import int20h.troipsa.pseudocalendar.R
 import int20h.troipsa.pseudocalendar.ui.base.ui.PseudoScaffold
 import int20h.troipsa.pseudocalendar.ui.base.ui.defaultTopBarProvider
@@ -40,7 +45,6 @@ import int20h.troipsa.pseudocalendar.utils.compose.extension.medium
 import int20h.troipsa.pseudocalendar.utils.compose.extension.optional
 import int20h.troipsa.pseudocalendar.utils.coroutines.launchAndCollect
 import int20h.troipsa.pseudocalendar.utils.displayText
-import int20h.troipsa.pseudocalendar.utils.extension.findActivity
 import int20h.troipsa.pseudocalendar.utils.extension.formatToDaySchedule
 import int20h.troipsa.pseudocalendar.utils.extension.formatToEventTime
 import java.util.*
@@ -59,6 +63,16 @@ fun EventScreen(
 
     val canSaveEvent by viewModel.canSave.collectAsState()
     val canSaveActivity by activityViewModel.canSave.collectAsState()
+
+    var result by rememberSaveable { mutableStateOf<Uri?>(null) }
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            result = it.data?.data
+            if (result != null) {
+                activityViewModel.setFiles(listOf(result.toString()))
+            }
+        }
+
 
     BackHandler(
         enabled = true,
@@ -124,6 +138,7 @@ fun EventScreen(
                 onDateChange = viewModel::onDateChange,
             )
         }
+
         if (timeDialogVisible) {
             TimePickerDialog(
                 initialTime = if (timeFrame == Timeframes.START) {
@@ -136,6 +151,7 @@ fun EventScreen(
                 onTimeChange = viewModel::onTimeChange,
             )
         }
+
         if (contactsDialogVisible) {
             Dialog(
                 onDismissRequest = { viewModel.showContactsDialog(false) }
@@ -376,9 +392,11 @@ fun EventScreen(
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(
                     onClick = {
-                        FilePickerBuilder.instance
-                            .setMaxCount(5) //optional
-                            .pickPhoto(context.findActivity())
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            launcher.launch(Intent(MediaStore.ACTION_PICK_IMAGES).apply {
+                                type = "image/*"
+                            })
+                        }
                     },
                 ) {
                     Icon(
